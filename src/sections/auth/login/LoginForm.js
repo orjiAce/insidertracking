@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { useFormik, Form, FormikProvider } from 'formik';
 import {doc, getDoc, getFirestore} from "firebase/firestore";
 import {signInWithEmailAndPassword} from 'firebase/auth';
@@ -18,7 +18,6 @@ import {loginUser, setAuthenticated, setResponse} from "../../../app/slices/user
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const navigate = useNavigate();
   const dispatch = useDispatch()
 
   const [showPassword, setShowPassword] = useState(false);

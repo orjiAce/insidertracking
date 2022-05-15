@@ -11,7 +11,7 @@ import Page from '../components/Page';
 
 // sections
 import { LoginForm } from '../sections/auth/login';
-import AuthSocial from '../sections/auth/AuthSocial';
+
 import LogoInsider from "../assets/Logo-InsiderTracking.svg"
 import {unSetResponse} from "../app/slices/userSlice";
 import {useDispatch, useSelector} from "react-redux";
@@ -75,6 +75,7 @@ const dispatch = useDispatch()
     responseMessage,
     responseState,
     responseType,
+    isAuthenticated
   } = user
 
 
@@ -92,12 +93,12 @@ const dispatch = useDispatch()
     setOpen(false);
   };
 
-
+  console.log(isAuthenticated)
   useEffect(() =>{
     // console.log(user)
     if (responseState || responseMessage) {
 
-
+console.log(isAuthenticated)
       const time = setTimeout(() => {
         dispatch(unSetResponse({
           responseState:false,

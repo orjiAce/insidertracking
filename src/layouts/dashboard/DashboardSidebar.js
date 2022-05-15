@@ -15,6 +15,8 @@ import NavSection from '../../components/NavSection';
 //
 import navConfig from './NavConfig';
 import LogoInsider from "../../assets/Logo-InsiderTracking.svg"
+import {useDispatch} from "react-redux";
+import {logoutUser} from "../../app/slices/userSlice";
 // ----------------------------------------------------------------------
 
 const DRAWER_WIDTH = 280;
@@ -43,7 +45,7 @@ DashboardSidebar.propTypes = {
 
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
-
+const dispatch = useDispatch()
   const isDesktop = useResponsive('up', 'lg');
 
   useEffect(() => {
@@ -89,7 +91,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
 
 
 
-          <Button href="https://material-ui.com/store/items/minimal-dashboard/" target="_blank" variant="contained">
+          <Button onClick={() => dispatch(logoutUser())} variant="contained">
         Logout
           </Button>
         </Stack>

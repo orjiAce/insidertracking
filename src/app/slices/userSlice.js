@@ -6,7 +6,7 @@ import { createSlice, createAsyncThunk} from "@reduxjs/toolkit";
 
 const initialState = {
     status: false,
-    authenticated: false,
+    isAuthenticated: false,
     responseState: false,
     responseMessage: '',
     responseType: '',
@@ -56,7 +56,7 @@ export const userSlice = createSlice({
             state.userData.lastName = action.payload.lastName
         },
         setAuthenticated: (state, action) => {
-            state.authenticated = action.payload
+            state.isAuthenticated = action.payload
         },
         setResponse: (state, action) => {
             state.responseState = action.payload.responseState

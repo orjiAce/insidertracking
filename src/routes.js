@@ -11,6 +11,8 @@ import LogoOnlyLayout from './layouts/LogoOnlyLayout';
 
 import NotFound from './pages/Page404';
 import Products from './pages/Products';
+import AuthGuard from "./guards/AuthGuard";
+import GuestGuard from "./guards/GuestGuard";
 
 
 
@@ -42,7 +44,11 @@ export default function Router() {
   return useRoutes([
     {
       path: '/dashboard',
-      element: <DashboardLayout />,
+      element: (
+          <AuthGuard>
+            <DashboardLayout />
+          </AuthGuard>
+      ),
       children: [
         { path: 'app', element: <DashboardApp /> },
         { path: 'user', element: <User /> },
@@ -52,7 +58,7 @@ export default function Router() {
     },
     {
       path: '/',
-      element: <LogoOnlyLayout />,
+      element:    <GuestGuard> <LogoOnlyLayout /> </GuestGuard>,
       children: [
         { path: '/', element: <Login /> },
         { path: 'login', element: <Login /> },
