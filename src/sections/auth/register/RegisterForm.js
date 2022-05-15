@@ -96,7 +96,7 @@ export default function RegisterForm() {
                       //  dispatch(signUpUSer(userData))
                      //   dispatch(setAuthenticated(true))
 
-                    console.log(r)
+
                     dispatch(setResponse({
                         responseMessage:"Account registered!",
                             responseState:true,

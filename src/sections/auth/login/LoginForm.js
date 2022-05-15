@@ -7,13 +7,13 @@ import {signInWithEmailAndPassword} from 'firebase/auth';
 
 
 // material
-import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormControlLabel } from '@mui/material';
+import {Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormControlLabel, Button} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import {useDispatch} from "react-redux";
 import {auth, db} from "../../../firebase";
 // component
 import Iconify from '../../../components/Iconify';
-import {loginUser, setAuthenticated} from "../../../app/slices/userSlice";
+import {loginUser, setAuthenticated, setResponse} from "../../../app/slices/userSlice";
 
 // ----------------------------------------------------------------------
 
@@ -54,11 +54,19 @@ export default function LoginForm() {
         dispatch(loginUser(userData))
         dispatch(setAuthenticated(true))
 
+        setSubmitting(false)
+
       }).catch(err => {
         // setLoading(false)
         // setResponseType('error')
         // setResponseState(true)
         // setResponseMessage('Network error, try again')
+        setSubmitting(false)
+        dispatch(setResponse({
+          responseMessage:err.message,
+          responseState:true,
+          responseType:'error',
+        }))
         setSubmitting(false)
       })
 
@@ -68,7 +76,11 @@ export default function LoginForm() {
       //   setResponseType('error')
       //   setResponseState(true)
       //   setResponseMessage(err.message)
-
+      dispatch(setResponse({
+        responseMessage:err.message,
+        responseState:true,
+        responseType:'error',
+      }))
       setSubmitting(false)
     }).finally(() => {
       //  setLoading(false)
@@ -150,9 +162,11 @@ export default function LoginForm() {
           </Link>
         </Stack>
 
-        <LoadingButton background="#222" fullWidth size="large" type="submit" variant="contained" loading={isSubmitting}>
+        <LoadingButton fullWidth size="large" color="primary" type="submit" disabled={isSubmitting}
+                        variant="contained" loading={isSubmitting} disableElevation>
           Login
         </LoadingButton>
+
       </Form>
     </FormikProvider>
   );

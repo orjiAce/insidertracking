@@ -1,9 +1,9 @@
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
-import {Card, Link, Container, Typography, Snackbar} from '@mui/material';
+import {Card, Link, Container, Typography, Snackbar, Slide} from '@mui/material';
 // hooks
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Alert} from "@mui/lab";
 import useResponsive from '../hooks/useResponsive';
 // components
@@ -13,7 +13,13 @@ import Page from '../components/Page';
 import { LoginForm } from '../sections/auth/login';
 import AuthSocial from '../sections/auth/AuthSocial';
 import LogoInsider from "../assets/Logo-InsiderTracking.svg"
+import {unSetResponse} from "../app/slices/userSlice";
+import {useDispatch, useSelector} from "react-redux";
 // ----------------------------------------------------------------------
+
+function TransitionRight(props) {
+  return <Slide {...props} direction="left" />;
+}
 
 const RootStyle = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -62,6 +68,14 @@ const ContentStyle = styled('div')(({ theme }) => ({
 export default function Login() {
   const smUp = useResponsive('up', 'sm');
   const [open, setOpen] = useState(false);
+const dispatch = useDispatch()
+
+  const user = useSelector(state => state.user)
+  const {
+    responseMessage,
+    responseState,
+    responseType,
+  } = user
 
 
   const mdUp = useResponsive('up', 'md');
@@ -77,6 +91,26 @@ export default function Login() {
 
     setOpen(false);
   };
+
+
+  useEffect(() =>{
+    // console.log(user)
+    if (responseState || responseMessage) {
+
+
+      const time = setTimeout(() => {
+        dispatch(unSetResponse({
+          responseState:false,
+          responseMessage:''
+        }))
+      }, 4500)
+      return () => {
+        clearTimeout(time)
+      };
+    }
+
+  },[responseState,responseMessage])
+
 
   return (
     <Page title="Login">
@@ -112,9 +146,10 @@ export default function Login() {
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>Enter your details below.</Typography>
 
             {/* <AuthSocial /> */}
-            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-              <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                This is a success message!
+            <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
+                      autoHideDuration={3000} onClose={handleClose}>
+              <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>
+                {responseMessage}
               </Alert>
             </Snackbar>
 

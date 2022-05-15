@@ -99,7 +99,7 @@ export default function Register() {
       responseState:false,
       responseMessage:''
     }))
-      }, 3500)
+      }, 4500)
       return () => {
         clearTimeout(time)
       };
@@ -141,7 +141,7 @@ export default function Register() {
             <AuthSocial />
             <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
                       autoHideDuration={3000} onClose={handleClose}>
-              <Alert onClose={handleClose} variant={responseType} severity="error" sx={{ width: '100%' }}>
+              <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>
                 {responseMessage}
               </Alert>
             </Snackbar>
