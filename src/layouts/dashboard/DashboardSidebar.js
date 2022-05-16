@@ -15,7 +15,7 @@ import NavSection from '../../components/NavSection';
 //
 import navConfig from './NavConfig';
 import LogoInsider from "../../assets/Logo-InsiderTracking.svg"
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {logoutUser} from "../../app/slices/userSlice";
 // ----------------------------------------------------------------------
 
@@ -44,6 +44,19 @@ DashboardSidebar.propTypes = {
 };
 
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
+
+  const user = useSelector(state => state.user)
+  const {
+
+    responseState,
+    responseType,
+    isAuthenticated,
+    userData: {
+      firstName,
+      lastName,
+
+    },
+  } = user
   const { pathname } = useLocation();
 const dispatch = useDispatch()
   const isDesktop = useResponsive('up', 'lg');
@@ -72,11 +85,9 @@ const dispatch = useDispatch()
             <Avatar src={account.photoURL} alt="photoURL" />
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
+                {lastName} {firstName}
               </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
-              </Typography>
+
             </Box>
           </AccountStyle>
         </Link>

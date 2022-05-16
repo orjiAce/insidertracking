@@ -93,7 +93,7 @@ const dispatch = useDispatch()
     setOpen(false);
   };
 
-  console.log(isAuthenticated)
+
   useEffect(() =>{
     // console.log(user)
     if (responseState || responseMessage) {
