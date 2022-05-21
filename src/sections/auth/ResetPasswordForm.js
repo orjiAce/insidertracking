@@ -80,7 +80,15 @@ export default function ResetPasswordForm({ onSent, onGetEmail }) {
             responseState:true,
             responseType:'success',
           }))
-        })
+        }) .catch((error) => {
+    
+         dispatch(setResponse({
+           responseMessage:error.message,
+           responseState:true,
+           responseType:'error',
+         }))
+         // ..
+       });
         setSubmitting(false)
 
       } catch (error) {

@@ -19,6 +19,7 @@ const initialState = {
         phone: null,
         photoURL: null,
         uid: '',
+        receiveNotification:false,
     },
 };
 

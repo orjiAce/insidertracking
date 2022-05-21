@@ -3,7 +3,9 @@ import { useFormik, Form, FormikProvider } from 'formik';
 // material
 import { Card, Stack, Switch, Typography, FormControlLabel } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
+import { getAuth, updateProfile } from "firebase/auth";
+import {setResponse} from "../../app/slices/userSlice";
 // redux
 
 // utils
@@ -13,43 +15,72 @@ import {useSelector} from "react-redux";
 
 const ACTIVITY_OPTIONS = [
   {
-    value: 'activityComments',
-    label: 'Email me when someone comments onmy article'
+    value: 'receiveNotification',
+    label: 'Text me about insider sell'
   },
   {
-    value: 'activityAnswers',
-    label: 'Email me when someone answers on my form'
+    value: 'receiveBuyNotification',
+    label: 'Text me about insider buy'
   },
-  { value: 'activityFollows', label: 'Email me hen someone follows me' }
+
 ];
 
-const APPLICATION_OPTIONS = [
-  { value: 'applicationNews', label: 'News and announcements' },
-  { value: 'applicationProduct', label: 'Weekly product updates' },
-  { value: 'applicationBlog', label: 'Weekly blog digest' }
-];
+
 
 // ----------------------------------------------------------------------
 
 export default function AccountNotifications() {
 
   const user  = useSelector((state) => state.user);
+  const auth = getAuth();
+const dispatch = useDispatch()
+
+  const {userData:{
+    email,
+    receiveNotification,
+    phone,
+    lastName,firstName
+  }} = user
+
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      activityComments: false,
-      activityAnswers: false,
+      receiveNotification:receiveNotification,
+      receiveBuyNotification: false,
       activityFollows: false,
-      applicationNews: true,
-      applicationProduct: true,
-      applicationBlog: false
+
     },
     onSubmit: async (values, { setSubmitting }) => {
 
-      setSubmitting(false);
+
 
      // enqueueSnackbar('Save success', { variant: 'success' });
+
+      updateProfile(auth.currentUser, {
+        photoURL:'https://d33wubrfki0l68.cloudfront.net/554c3b0e09cf167f0281fda839a5433f2040b349/ecfc9/img/header_logo.svg'
+      }).then(() => {
+        // Profile updated!
+        // ...
+
+        dispatch(setResponse({
+          responseMessage:"Account updated!",
+          responseState:true,
+          responseType:'success',
+        }))
+
+        setSubmitting(false);
+      }).catch((error) => {
+        // An error occurred
+        // ...
+        dispatch(setResponse({
+          responseMessage:error.message,
+          responseState:true,
+          responseType:'error',
+        }))
+        setSubmitting(false);
+      });
+
     }
   });
 
@@ -76,23 +107,8 @@ export default function AccountNotifications() {
               </Stack>
             </Stack>
 
-            <Stack spacing={2} sx={{ width: 1 }}>
-              <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-                Application
-              </Typography>
-              <Stack spacing={1} alignItems="flex-start">
-                {APPLICATION_OPTIONS.map((item) => (
-                  <FormControlLabel
-                    key={item.value}
-                    control={<Switch {...getFieldProps(item.value)} checked={values[item.value]} />}
-                    label={item.label}
-                    sx={{ mx: 0 }}
-                  />
-                ))}
-              </Stack>
-            </Stack>
 
-            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+            <LoadingButton type="submit" onClick={() => handleSubmit()} variant="contained" loading={isSubmitting}>
               Save Changes
             </LoadingButton>
           </Stack>

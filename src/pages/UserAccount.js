@@ -1,14 +1,14 @@
 import { Icon } from '@iconify/react';
 import { capitalCase } from 'change-case';
 import { useState, useEffect } from 'react';
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import bellFill from '@iconify/icons-eva/bell-fill';
 import shareFill from '@iconify/icons-eva/share-fill';
 import roundVpnKey from '@iconify/icons-ic/round-vpn-key';
 import roundReceipt from '@iconify/icons-ic/round-receipt';
 import roundAccountBox from '@iconify/icons-ic/round-account-box';
 // material
-import { Container, Tab, Box, Tabs, Stack } from '@mui/material';
+import {Container, Tab, Box, Tabs, Stack, Snackbar, Alert, Slide} from '@mui/material';
 // redux
 
 
@@ -26,9 +26,14 @@ import {
 } from '../components/_profile/';
 import Page from "../components/Page";
 import {getAuth,sendEmailVerification} from "firebase/auth";
+import {unSetResponse} from "../app/slices/userSlice";
 
 
 // ----------------------------------------------------------------------
+function TransitionRight(props) {
+  return <Slide {...props} direction="right" />;
+}
+
 
 export default function UserAccount() {
 
@@ -36,6 +41,12 @@ export default function UserAccount() {
   const dispatch = useDispatch();
 
 
+  const user = useSelector(state => state.user)
+  const {
+    responseMessage,
+    responseState,
+    responseType,
+  } = user
 
   const ACCOUNT_TABS = [
     {
@@ -61,11 +72,43 @@ export default function UserAccount() {
     setCurrentTab(newValue);
   };
 
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
 
+    dispatch(unSetResponse({
+      responseState:false,
+      responseMessage:''
+    }))
+  };
+
+  useEffect(() =>{
+    // console.log(user)
+    if (responseState || responseMessage) {
+
+
+      const time = setTimeout(() => {
+        dispatch(unSetResponse({
+          responseState:false,
+          responseMessage:''
+        }))
+      }, 4500)
+      return () => {
+        clearTimeout(time)
+      };
+    }
+
+  },[responseState,responseMessage])
   return (
     <Page title="User: Account Settings | Minimal-UI">
       <Container >
-
+        <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
+                  autoHideDuration={3000} onClose={handleClose}>
+          <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>
+            {responseMessage}
+          </Alert>
+        </Snackbar>
 
         <Stack spacing={5}>
           <Tabs
