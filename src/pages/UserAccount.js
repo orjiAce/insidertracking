@@ -25,6 +25,7 @@ import {
   AccountChangePassword
 } from '../components/_profile/';
 import Page from "../components/Page";
+import {getAuth,sendEmailVerification} from "firebase/auth";
 
 
 // ----------------------------------------------------------------------
@@ -59,6 +60,7 @@ export default function UserAccount() {
   const handleChangeTab = (event, newValue) => {
     setCurrentTab(newValue);
   };
+
 
   return (
     <Page title="User: Account Settings | Minimal-UI">

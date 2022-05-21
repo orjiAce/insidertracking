@@ -1,5 +1,5 @@
 import {
-    createUserWithEmailAndPassword
+    createUserWithEmailAndPassword, getAuth, sendEmailVerification
 } from 'firebase/auth'
 
 import * as Yup from 'yup';
@@ -25,6 +25,10 @@ export default function RegisterForm() {
   const navigate = useNavigate();
 
    const dispatch = useDispatch()
+
+    const auth = getAuth();
+
+
 
 
     const [showPassword, setShowPassword] = useState(false);
@@ -95,7 +99,17 @@ export default function RegisterForm() {
                       //  setResponseMessage("Account registers, Verify your email")
                       //  dispatch(signUpUSer(userData))
                      //   dispatch(setAuthenticated(true))
+                        sendEmailVerification(auth.currentUser)
+                            .then(() => {
+                                // Email verification sent!
+                                // ...
 
+                                dispatch(setResponse({
+                                    responseMessage:"Please check your mail to verify your account!",
+                                    responseState:true,
+                                    responseType:'info',
+                                }))
+                            });
 
                     dispatch(setResponse({
                         responseMessage:"Account registered!",

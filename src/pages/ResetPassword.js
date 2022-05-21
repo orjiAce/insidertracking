@@ -2,13 +2,15 @@ import { useState } from 'react';
 import {Link as RouterLink, useNavigate} from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
-import { Box, Button, Container, Typography } from '@mui/material';
+import {Alert, Box, Button, Container, Slide, Snackbar, Typography} from '@mui/material';
 // layouts
 
 
 // components
 import Page from '../components/Page';
 import ResetPasswordForm  from '../sections/auth/ResetPasswordForm';
+import {useDispatch, useSelector} from "react-redux";
+import {unSetResponse} from "../app/slices/userSlice";
 //
 /* import { SentIcon } from '../../assets'; */
 
@@ -24,20 +26,51 @@ const RootStyle = styled(Page)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
+
+function TransitionRight(props) {
+    return <Slide {...props} direction="right" />;
+}
+
+
 export default function ResetPassword() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [sent, setSent] = useState(false);
+const dispatch = useDispatch()
+
+    const user = useSelector(state => state.user)
+    const {
+        responseMessage,
+        responseState,
+        responseType,
+    } = user
 
     const goBack = () => {
         navigate('/login', { replace: true });
     }
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        dispatch(unSetResponse({
+            responseState:false,
+            responseMessage:''
+        }))
+    };
 
     return (
         <RootStyle title="Reset Password | Minimal UI">
 
 
             <Container>
+                <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
+                          autoHideDuration={3000} onClose={handleClose}>
+                    <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>
+                        {responseMessage}
+                    </Alert>
+                </Snackbar>
                 <Box sx={{ maxWidth: 480, mx: 'auto' }}>
                     {!sent ? (
                         <>

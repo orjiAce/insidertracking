@@ -7,6 +7,13 @@ import { TextField, Alert, Stack } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // hooks
 
+import {
+  getAuth,
+  updatePassword,
+    sendPasswordResetEmail
+} from 'firebase/auth'
+import {setResponse, unSetResponse} from "../../app/slices/userSlice";
+import {useDispatch, useSelector} from "react-redux";
 
 // ----------------------------------------------------------------------
 
@@ -17,6 +24,15 @@ ResetPasswordForm.propTypes = {
 
 export default function ResetPasswordForm({ onSent, onGetEmail }) {
 
+  const dispatch = useDispatch()
+
+  const auth = getAuth();
+  const user = useSelector(state => state.user)
+  const {
+    responseMessage,
+    responseState,
+    responseType,
+  } = user
   const isMounted = useRef(true);
 
   useEffect(
@@ -26,27 +42,62 @@ export default function ResetPasswordForm({ onSent, onGetEmail }) {
       []
   );
 
+  useEffect(() =>{
+    // console.log(user)
+    if (responseState || responseMessage) {
+
+
+      const time = setTimeout(() => {
+        dispatch(unSetResponse({
+          responseState:false,
+          responseMessage:''
+        }))
+      }, 4500)
+      return () => {
+        clearTimeout(time)
+      };
+    }
+
+  },[responseState,responseMessage])
+
+
+
   const ResetPasswordSchema = Yup.object().shape({
     email: Yup.string().email('Email must be a valid email address').required('Email is required')
   });
 
   const formik = useFormik({
+
     initialValues: {
-      email: 'demo@minimals.cc'
+      email: ''
     },
     validationSchema: ResetPasswordSchema,
     onSubmit: async (values, { setErrors, setSubmitting }) => {
       try {
+       await sendPasswordResetEmail(auth,values.email).then(()=>{
+          dispatch(setResponse({
+            responseMessage:"Password reset link sent to your email!",
+            responseState:true,
+            responseType:'success',
+          }))
+        })
+        setSubmitting(false)
 
-        console.error(values);
       } catch (error) {
-        console.error(error);
 
+        dispatch(setResponse({
+          responseMessage:error.message,
+          responseState:true,
+          responseType:'error',
+        }))
+        setSubmitting(false)
       }
     }
   });
+  const { errors, touched, isSubmitting,handleSubmit, getFieldProps } = formik;
 
-  const { errors, touched, isSubmitting, handleSubmit, getFieldProps } = formik;
+
+
 
   return (
     <FormikProvider value={formik}>
