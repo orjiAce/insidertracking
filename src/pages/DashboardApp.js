@@ -1,6 +1,6 @@
-import { faker } from '@faker-js/faker';
+import {faker} from '@faker-js/faker';
 // @mui
-import { useTheme } from '@mui/material/styles';
+import {useTheme} from '@mui/material/styles';
 import {
     Grid,
     Container,
@@ -18,15 +18,15 @@ import Page from '../components/Page';
 import Iconify from '../components/Iconify';
 // sections
 import {
-  AppTasks,
-  AppNewsUpdate,
-  AppOrderTimeline,
-  AppCurrentVisits,
-  AppWebsiteVisits,
-  AppTrafficBySite,
-  AppWidgetSummary,
-  AppCurrentSubject,
-  AppConversionRates,
+    AppTasks,
+    AppNewsUpdate,
+    AppOrderTimeline,
+    AppCurrentVisits,
+    AppWebsiteVisits,
+    AppTrafficBySite,
+    AppWidgetSummary,
+    AppCurrentSubject,
+    AppConversionRates,
 } from '../sections/@dashboard/app';
 import ClusterBuy from "../components/ClusterBuy";
 import {UserListHead, UserListToolbar} from "../sections/@dashboard/user";
@@ -34,24 +34,22 @@ import Scrollbar from "../components/Scrollbar";
 import dayjs from "dayjs";
 import Label from "../components/Label";
 import SearchNotFound from "../components/SearchNotFound";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {filter} from "lodash";
 
 // ----------------------------------------------------------------------
 
 
-
-
 const TABLE_HEAD = [
-    { id: 'At', label: 'Filed\u00a0Date', alignRight: false },
-    { id: 'Type', label: 'From\u00a0Type', alignRight: false },
-    { id: 'CIK', label: 'CIK', alignRight: false },
-    { id: 'Ticker', label: 'Ticker', alignRight: false },
-    { id: 'Company', label: 'Company\u00a0Name', alignRight: false },
-    { id: 'Filing', label: 'Filing Details', alignRight: false },
-    { id: 'TXT', label: 'TXT Version of Filing', alignRight: false },
-    { id: 'Attachments', label: 'Attachments', alignRight: false },
-    { id: '' },
+    {id: 'At', label: 'Filed\u00a0Date', alignRight: false},
+    {id: 'Type', label: 'From\u00a0Type', alignRight: false},
+    {id: 'CIK', label: 'CIK', alignRight: false},
+    {id: 'Ticker', label: 'Ticker', alignRight: false},
+    {id: 'Company', label: 'Company\u00a0Name', alignRight: false},
+    {id: 'Filing', label: 'Filing Details', alignRight: false},
+    {id: 'TXT', label: 'TXT Version of Filing', alignRight: false},
+    {id: 'Attachments', label: 'Attachments', alignRight: false},
+    {id: ''},
 ];
 
 // ----------------------------------------------------------------------
@@ -86,14 +84,47 @@ function applySortFilter(array, comparator, query) {
 }
 
 
-
-
 export default function DashboardApp() {
-  const theme = useTheme();
+    const theme = useTheme();
+
+    const [stocks, setStocks] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
 
 
+        const abortController = new AbortController();
+        const requestOptions = {
+            method: 'GET',
+            signal: abortController.signal,
+
+        };
 
 
+        const promise = Promise.race([
+            fetch('https://api.polygon.io/v3/reference/tickers?market=stocks&active=true&sort=market&order=asc&limit=15&apiKey=iFeHNMrhbpkHU7jgUzHUUZWd1AJbnT5B', requestOptions)
+                .then(response => response.json()),
+            new Promise((resolve, reject) =>
+                setTimeout(() => reject(new Error('Timeout')), 10000)
+            )
+        ]);
+
+        promise.then(result => {
+            if (result.status === 'OK') {
+                setStocks(result.results)
+
+            } else {
+                setStocks([])
+            }
+        })
+        promise.catch(error => {
+            console.log(error)
+        });
+
+        return () => {
+            abortController.abort()
+        };
+    }, []);
 
 
     const [page, setPage] = useState(0);
@@ -158,17 +189,17 @@ export default function DashboardApp() {
 
     const isUserNotFound = filteredUsers.length === 0;
 
-  return (
-    <Page title="Dashboard">
-      <Container maxWidth="xl">
-        <Typography variant="h4" sx={{ mb: 5 }}>
-  Dashboard
-        </Typography>
+    return (
+        <Page title="Dashboard">
+            <Container maxWidth="xl">
+                <Typography variant="h4" sx={{mb: 5}}>
+                    Dashboard
+                </Typography>
 
-        <Grid container spacing={3}>
+                {/* <Grid container spacing={3}>*/}
 
 
-          <Grid item xs={12} md={6} lg={8}>
+                {/*  <Grid item xs={12} md={6} lg={8}>
             <AppWebsiteVisits
               title="AOL 500"
               subheader="(+43%) than last year"
@@ -196,9 +227,9 @@ export default function DashboardApp() {
                 },
               ]}
             />
-          </Grid>
+          </Grid>*/}
 
-          {/* <Grid item xs={12} md={6} lg={4}>
+                {/* <Grid item xs={12} md={6} lg={4}>
             <AppCurrentVisits
               title="Current Visits"
               chartData={[
@@ -216,7 +247,7 @@ export default function DashboardApp() {
             />
           </Grid> */}
 
-
+                {/*
             <Grid item xs={12} md={6} lg={12}>
                 <Card>
                     <CardHeader title={"Latest Cluster buy"}  />
@@ -224,18 +255,128 @@ export default function DashboardApp() {
 
                 </Card>
             </Grid>
-        </Grid>
+        </Grid>*/}
 
 
+                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+                    <Typography variant="h4" gutterBottom>
+                        Insider buy
+                    </Typography>
 
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-              <Typography variant="h4" gutterBottom>
-                  Insider buy
-              </Typography>
+                </Stack>
 
-          </Stack>
+                <Card>
+                    <UserListToolbar numSelected={selected.length} filterName={filterName}
+                                     onFilterName={handleFilterByName}/>
 
-          <Card>
+                    <Scrollbar>
+                        <TableContainer sx={{minWidth: 800}}>
+                            <Table>
+                                <UserListHead
+                                    order={order}
+                                    orderBy={orderBy}
+                                    headLabel={TABLE_HEAD}
+                                    rowCount={FILLINGS.length}
+                                    numSelected={selected.length}
+                                    onRequestSort={handleRequestSort}
+                                    onSelectAllClick={handleSelectAllClick}
+                                />
+                                <TableBody>
+                                    {FILLINGS.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                                        const {
+                                            id,
+                                            companyName,
+                                            cik,
+                                            ticker,
+                                            linkToFilingDetails,
+                                            linkToTxt,
+                                            linkToHtml,
+                                            formType,
+                                            filedAt
+                                        } = row;
+                                        const isItemSelected = selected.indexOf(companyName) !== -1;
+
+                                        return (
+                                            <TableRow
+                                                hover
+                                                key={id}
+                                                tabIndex={-1}
+                                                role="checkbox"
+                                                selected={isItemSelected}
+                                                aria-checked={isItemSelected}
+                                            >
+                                                <TableCell padding="checkbox">
+                                                    <Checkbox checked={isItemSelected}
+                                                              onChange={(event) => handleClick(event, companyName)}/>
+                                                </TableCell>
+                                                <TableCell component="th" scope="row" padding="none">
+                                                    <Stack direction="row" alignItems="center" spacing={2}>
+
+                                                        <Typography variant="caption" noWrap>
+                                                            {dayjs(filedAt).format('YYYY-DD-MM, H:M:s')}
+                                                        </Typography>
+                                                    </Stack>
+                                                </TableCell>
+
+                                                <TableCell align="left">{formType}</TableCell>
+                                                <TableCell align="left">{cik}</TableCell>
+                                                <TableCell align="left">
+                                                    <Label variant="ghost" color={'success'}>
+                                                        {ticker}
+                                                    </Label>
+                                                </TableCell>
+                                                <TableCell align="left">{companyName}</TableCell>
+                                                <TableCell align="left" color={"blue"}>
+                                                    <Link color="#1890ff" href={linkToFilingDetails} underline="hover">
+                                                        {`${linkToFilingDetails.substring(0, 14)}...`}{`${linkToFilingDetails.substring(80, linkToFilingDetails.length)}`}
+                                                    </Link>
+                                                </TableCell>
+
+                                                <TableCell align="left">
+                                                    <Link color="#1890ff" href={linkToFilingDetails}
+                                                          underline="hover">{`${linkToTxt.substring(0, 14)}...`}{`${linkToTxt.substring(80, linkToTxt.length)}`}
+                                                    </Link>
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    <Link color="#1890ff" href={linkToFilingDetails}
+                                                          underline="hover">{`${linkToHtml.substring(0, 14)}...`}{`${linkToHtml.substring(80, linkToHtml.length)}`}
+                                                    </Link></TableCell>
+
+                                            </TableRow>
+                                        );
+                                    })}
+                                    {emptyRows > 0 && (
+                                        <TableRow style={{height: 53 * emptyRows}}>
+                                            <TableCell colSpan={6}/>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+
+                                {isUserNotFound && (
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell align="center" colSpan={6} sx={{py: 3}}>
+                                                <SearchNotFound searchQuery={filterName}/>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                )}
+                            </Table>
+                        </TableContainer>
+                    </Scrollbar>
+
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25]}
+                        component="div"
+                        count={FILLINGS.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+                </Card>
+
+                {/* <Card>
               <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
               <Scrollbar>
@@ -330,10 +471,10 @@ export default function DashboardApp() {
                   onPageChange={handleChangePage}
                   onRowsPerPageChange={handleChangeRowsPerPage}
               />
-          </Card>
-      </Container>
-    </Page>
-  );
+          </Card>*/}
+            </Container>
+        </Page>
+    );
 }
 
 const FILLINGS =

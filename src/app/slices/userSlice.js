@@ -13,6 +13,8 @@ const initialState = {
     userData: {
         createdAt: null,
         email: '',
+        country:'',
+        city:'',
         emailVerified: false,
         firstName: 'string',
         lastName: '',
@@ -55,6 +57,7 @@ export const userSlice = createSlice({
             state.userData.phone = action.payload.phone
             state.userData.firstName = action.payload.firstName
             state.userData.lastName = action.payload.lastName
+            state.userData.country = action.payload.country
         },
         setAuthenticated: (state, action) => {
             state.isAuthenticated = action.payload

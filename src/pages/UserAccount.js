@@ -43,6 +43,7 @@ export default function UserAccount() {
 
   const user = useSelector(state => state.user)
   const {
+
     responseMessage,
     responseState,
     responseType,
@@ -100,9 +101,11 @@ export default function UserAccount() {
     }
 
   },[responseState,responseMessage])
+
+
   return (
     <Page title="User: Account Settings | Minimal-UI">
-      <Container >
+      <Container>
         <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
                   autoHideDuration={3000} onClose={handleClose}>
           <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>

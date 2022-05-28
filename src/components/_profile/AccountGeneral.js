@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-import { useCallback } from 'react';
+import { useCallback,useEffect } from 'react';
 import { Form, FormikProvider, useFormik } from 'formik';
 // material
 import {
@@ -17,44 +17,79 @@ import { LoadingButton } from '@mui/lab';
 // utils
 /* import { fData } from '../../../../utils/formatNumber'; */
 //
+import { doc, setDoc } from "firebase/firestore"
+import {auth, db} from "../../firebase";
 import countries from '../countries';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
+import {setResponse, updateInfo} from "../../app/slices/userSlice";
 
 // ----------------------------------------------------------------------
 
 export default function AccountGeneral() {
 
 const user = useSelector(state => state.user)
-
-  const {userData:{
+const dispatch = useDispatch()
+  const {
+    responseMessage,
+    responseState,
+    responseType,
+  userData:{
     email,
     phone,
+    uid,
     lastName,firstName
   }} = user
 
   const UpdateUserSchema = Yup.object().shape({
-    displayName: Yup.string().required('Name is required')
+    country: Yup.string().required('Country is required'),
+    firstName: Yup.string().required('First Name is required'),
+    lastName: Yup.string().required('Last Name is required'),
+    city: Yup.string().required('City is required'),
+    phone: Yup.number().required('Phone Number is required')
   });
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      lastName:  lastName,
+      lastName,
       firstName,
       email: email,
-      photoURL: '',
-      phoneNumber: phone,
+     phone,
       country: '',
+      city: '',
+      state: '',
 
     },
 
     validationSchema: UpdateUserSchema,
-    onSubmit: async (values, { setErrors, setSubmitting }) => {
+    onSubmit: async (values, { setErrors }) => {
       try {
 
       //  enqueueSnackbar('Update success', { variant: 'success' });
+        const docRef = doc(db, "users",uid);
 
-          setSubmitting(false);
+        setDoc(docRef, {
+          ...values
+        }, {
+          merge: true
+        }).then(() => {
+          dispatch(setResponse({
+            responseMessage:'Profile updated',
+            responseState:true,
+            responseType:'success',
+          }))
+          dispatch(updateInfo({...values}))
+
+         // setSubmitting(false);
+          //console.log("Document updated")
+        })
+            .catch((err) =>{
+              console.log(err)
+            })
+
+        ;
+
+
 
       } catch (error) {
 
@@ -64,7 +99,7 @@ const user = useSelector(state => state.user)
     }
   });
 
-  const { values, errors, touched, isSubmitting, handleSubmit, getFieldProps, setFieldValue } = formik;
+  const { values, errors, touched, isSubmitting, setSubmitting,handleSubmit, getFieldProps, setFieldValue } = formik;
 
   const handleDrop = useCallback(
     (acceptedFiles) => {
@@ -81,6 +116,7 @@ const user = useSelector(state => state.user)
 
 
 
+
   return (
     <FormikProvider value={formik}>
       <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
@@ -91,19 +127,32 @@ const user = useSelector(state => state.user)
             <Card sx={{ p: 3 }}>
               <Stack spacing={{ xs: 2, md: 3 }}>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                  <TextField fullWidth label="First Name" {...getFieldProps('firstName')} />
-                  <TextField fullWidth label="Last Name" {...getFieldProps('lastName')} />
+                  <TextField fullWidth label="First Name" {...getFieldProps('firstName')}
+                             error={Boolean(touched.firstName && errors.firstName)}
+                  />
+                  <TextField fullWidth type="text" label="Last Name" {...getFieldProps('lastName')}
+                             error={Boolean(touched.lastName && errors.lastName)}
+
+                  />
                 </Stack>
 
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                  <TextField fullWidth label="Phone Number" {...getFieldProps('phoneNumber')} />
-                  <TextField fullWidth label="Email Address" {...getFieldProps('email')} />
+                  <TextField fullWidth label="Phone Number" {...getFieldProps('phone')}
+
+                             error={Boolean(touched.phone && errors.phone)}
+                  />
+                  <TextField fullWidth label="City"  {...getFieldProps('city')}
+
+                             error={Boolean(touched.city && errors.city)}
+                  />
+
                 </Stack>
 
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                   <TextField
                     select
                     fullWidth
+
                     label="Country"
                     placeholder="Country"
                     {...getFieldProps('country')}
@@ -121,16 +170,16 @@ const user = useSelector(state => state.user)
                   <TextField fullWidth label="State/Region" {...getFieldProps('state')} />
                 </Stack>
 
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                  <TextField fullWidth label="City" {...getFieldProps('city')} />
-                  <TextField fullWidth label="Zip/Code" {...getFieldProps('zipCode')} />
-                </Stack>
+
 
 
               </Stack>
 
               <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                <LoadingButton onClick={() => {
+
+                  console.log(errors)
+                }} type="submit" variant="contained" loading={isSubmitting}>
                   Save Changes
                 </LoadingButton>
               </Box>

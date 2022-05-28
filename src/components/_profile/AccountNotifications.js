@@ -16,11 +16,19 @@ import {setResponse} from "../../app/slices/userSlice";
 const ACTIVITY_OPTIONS = [
   {
     value: 'receiveNotification',
-    label: 'Text me about insider sell'
+    label: 'Text me about Insider Sell'
   },
   {
     value: 'receiveBuyNotification',
-    label: 'Text me about insider buy'
+    label: 'Text me about Insider Buy'
+  },
+  {
+    value: 'receiveClusterBuyNotification',
+    label: 'Text me about Cluster Buy'
+  },
+  {
+    value: 'receiveBuyNotification',
+    label: 'Text me about Cluster Sell'
   },
 
 ];
