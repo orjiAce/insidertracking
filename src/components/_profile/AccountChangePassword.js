@@ -1,17 +1,21 @@
 import * as Yup from 'yup';
-
+import { getAuth, updatePassword } from "firebase/auth";
 import { useFormik, Form, FormikProvider } from 'formik';
 // material
 import { Stack, Card, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import {setResponse} from "../../app/slices/userSlice";
+import {useDispatch} from "react-redux";
 // utils
 
 
 // ----------------------------------------------------------------------
 
 export default function AccountChangePassword() {
+  const auth = getAuth();
+  const user = auth.currentUser;
 
-
+  const dispatch = useDispatch()
   const ChangePassWordSchema = Yup.object().shape({
     oldPassword: Yup.string().required('Old Password is required'),
     newPassword: Yup.string().min(6, 'Password must be at least 6 characters').required('New Password is required'),
@@ -27,7 +31,26 @@ export default function AccountChangePassword() {
     validationSchema: ChangePassWordSchema,
     onSubmit: async (values, { setSubmitting }) => {
 
-      setSubmitting(false);
+      updatePassword(user, values.newPassword).then(() => {
+        // Update successful.
+        dispatch(setResponse({
+          responseMessage:'Password updated',
+          responseState:true,
+          responseType:'success',
+        }))
+
+      }).catch((error) => {
+        // An error occurred
+        // ...
+        dispatch(setResponse({
+          responseMessage:error.message,
+          responseState:true,
+          responseType:'error',
+        }))
+        setSubmitting(false);
+      });
+
+
 
       //enqueueSnackbar('Save success', { variant: 'success' });
     }

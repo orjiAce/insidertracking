@@ -36,7 +36,9 @@ const dispatch = useDispatch()
   userData:{
     email,
     phone,
+    country,
     uid,
+      state,city,
     lastName,firstName
   }} = user
 
@@ -53,11 +55,11 @@ const dispatch = useDispatch()
     initialValues: {
       lastName,
       firstName,
-      email: email,
-     phone,
-      country: '',
-      city: '',
-      state: '',
+      email,
+      phone,
+      country,
+      city,
+      state,
 
     },
 
@@ -66,18 +68,20 @@ const dispatch = useDispatch()
       try {
 
       //  enqueueSnackbar('Update success', { variant: 'success' });
-        const docRef = doc(db, "users",uid);
+        const docRef = doc(db, "users", uid);
 
         setDoc(docRef, {
           ...values
         }, {
           merge: true
         }).then(() => {
+
           dispatch(setResponse({
             responseMessage:'Profile updated',
             responseState:true,
             responseType:'success',
           }))
+
           dispatch(updateInfo({...values}))
 
          // setSubmitting(false);
@@ -86,10 +90,6 @@ const dispatch = useDispatch()
             .catch((err) =>{
               console.log(err)
             })
-
-        ;
-
-
 
       } catch (error) {
 
