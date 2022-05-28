@@ -53,6 +53,7 @@ export default function Router() {
         { path: 'app', element: <DashboardApp /> },
         { path: 'user', element: <UserAccount /> },
         { path: 'user-setting', element: <UserAccount /> },
+        { path: 'watchlist', element: <WatchList /> },
         { path: 'products', element: <Products /> },
         { path: 'blog', element: <Blog /> },
       ],
@@ -76,6 +77,7 @@ export default function Router() {
 
 const Blog = Loadable(lazy(() => import('./pages/Blog')))
 const UserAccount = Loadable(lazy(() => import('./pages/UserAccount')))
+const WatchList = Loadable(lazy(() => import('./pages/WatchList')))
 const User = Loadable(lazy(() => import('./pages/User')))
 const Login = Loadable(lazy(() => import('./pages/Login')))
 const ResetPassword = Loadable(lazy(() => import('./pages/ResetPassword')))

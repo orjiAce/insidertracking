@@ -16,6 +16,11 @@ const navConfig = [
     path: '/dashboard/user',
     icon: getIcon('eva:people-fill'),
   },
+  {
+    title: 'Watchlist',
+    path: '/dashboard/watchlist',
+    icon: getIcon('eva:eye-fill'),
+  },
 
 ];
 

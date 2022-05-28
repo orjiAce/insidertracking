@@ -41,14 +41,14 @@ import {filter} from "lodash";
 
 
 const TABLE_HEAD = [
-    {id: 'At', label: 'Filed\u00a0Date', alignRight: false},
-    {id: 'Type', label: 'From\u00a0Type', alignRight: false},
+    {id: 'At', label: 'Last\u00a0Updated', alignRight: false},
+    {id: 'Type', label: '\u00a0Type', alignRight: false},
     {id: 'CIK', label: 'CIK', alignRight: false},
     {id: 'Ticker', label: 'Ticker', alignRight: false},
     {id: 'Company', label: 'Company\u00a0Name', alignRight: false},
-    {id: 'Filing', label: 'Filing Details', alignRight: false},
-    {id: 'TXT', label: 'TXT Version of Filing', alignRight: false},
-    {id: 'Attachments', label: 'Attachments', alignRight: false},
+    {id: 'currency_name', label: 'Currency Name', alignRight: false},
+    {id: 'Market', label: 'Market', alignRight: false},
+    {id: 'primary_exchange', label: 'Primary Exchange', alignRight: false},
     {id: ''},
 ];
 
@@ -276,30 +276,45 @@ export default function DashboardApp() {
                                     order={order}
                                     orderBy={orderBy}
                                     headLabel={TABLE_HEAD}
-                                    rowCount={FILLINGS.length}
+                                    rowCount={stocks.length}
                                     numSelected={selected.length}
                                     onRequestSort={handleRequestSort}
                                     onSelectAllClick={handleSelectAllClick}
                                 />
                                 <TableBody>
-                                    {FILLINGS.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                                    {stocks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                                        /*  const {
+                                              id,
+                                              companyName,
+                                              cik,
+                                              ticker,
+                                              linkToFilingDetails,
+                                              linkToTxt,
+                                              linkToHtml,
+                                              formType,
+                                              filedAt
+                                          } = row;*/
+
                                         const {
-                                            id,
-                                            companyName,
+                                            active,
                                             cik,
+                                            composite_figi,
+                                            currency_name,
+                                            last_updated_utc,
+                                            locale,
+                                            market,
+                                            name,
+                                            primary_exchange,
+                                            share_class_figi,
                                             ticker,
-                                            linkToFilingDetails,
-                                            linkToTxt,
-                                            linkToHtml,
-                                            formType,
-                                            filedAt
-                                        } = row;
-                                        const isItemSelected = selected.indexOf(companyName) !== -1;
+                                            type,
+                                        } = row
+                                        const isItemSelected = selected.indexOf(cik) !== -1;
 
                                         return (
                                             <TableRow
                                                 hover
-                                                key={id}
+                                                key={cik}
                                                 tabIndex={-1}
                                                 role="checkbox"
                                                 selected={isItemSelected}
@@ -307,40 +322,44 @@ export default function DashboardApp() {
                                             >
                                                 <TableCell padding="checkbox">
                                                     <Checkbox checked={isItemSelected}
-                                                              onChange={(event) => handleClick(event, companyName)}/>
+                                                              onChange={(event) => handleClick(event, cik)}/>
                                                 </TableCell>
                                                 <TableCell component="th" scope="row" padding="none">
                                                     <Stack direction="row" alignItems="center" spacing={2}>
 
                                                         <Typography variant="caption" noWrap>
-                                                            {dayjs(filedAt).format('YYYY-DD-MM, H:M:s')}
+                                                            {dayjs(last_updated_utc).format('YYYY-DD-MM, H:M:s')}
                                                         </Typography>
                                                     </Stack>
                                                 </TableCell>
 
-                                                <TableCell align="left">{formType}</TableCell>
+                                                <TableCell align="left">{type}</TableCell>
                                                 <TableCell align="left">{cik}</TableCell>
                                                 <TableCell align="left">
                                                     <Label variant="ghost" color={'success'}>
                                                         {ticker}
                                                     </Label>
                                                 </TableCell>
-                                                <TableCell align="left">{companyName}</TableCell>
+                                                <TableCell align="left">{ticker}</TableCell>
                                                 <TableCell align="left" color={"blue"}>
-                                                    <Link color="#1890ff" href={linkToFilingDetails} underline="hover">
+                                                    {currency_name}
+                                                    {/* <Link color="#1890ff" href={linkToFilingDetails} underline="hover">
                                                         {`${linkToFilingDetails.substring(0, 14)}...`}{`${linkToFilingDetails.substring(80, linkToFilingDetails.length)}`}
-                                                    </Link>
+                                                    </Link>*/}
                                                 </TableCell>
 
                                                 <TableCell align="left">
-                                                    <Link color="#1890ff" href={linkToFilingDetails}
+                                                   {/* <Link color="#1890ff" href={linkToFilingDetails}
                                                           underline="hover">{`${linkToTxt.substring(0, 14)}...`}{`${linkToTxt.substring(80, linkToTxt.length)}`}
-                                                    </Link>
+                                                    </Link>*/}
+                                                    {market}
                                                 </TableCell>
                                                 <TableCell align="left">
-                                                    <Link color="#1890ff" href={linkToFilingDetails}
+                                                   {/* <Link color="#1890ff" href={linkToFilingDetails}
                                                           underline="hover">{`${linkToHtml.substring(0, 14)}...`}{`${linkToHtml.substring(80, linkToHtml.length)}`}
-                                                    </Link></TableCell>
+                                                    </Link>*/}
+                                                    {primary_exchange}
+                                                </TableCell>
 
                                             </TableRow>
                                         );
