@@ -45,7 +45,7 @@ const TABLE_HEAD = [
     {id: 'At', label: 'Updated\u00a0at', alignRight: false},
     {id: 'OpenPrice', label: 'Open\u00a0Price', alignRight: false},
     {id: 'CLosePrice', label: 'Close\u00a0price', alignRight: false},
-    {id: 'Ticker', label: 'Symbol', alignRight: false},
+    {id: 'ticker', label: 'Symbol', alignRight: false},
     {id: 'Volume', label: 'Acc\u00a0Volume', alignRight: false},
     {id: 'todaysChange', label: 'Todays\u00a0price\u00a0Change', alignRight: false},
     {id: 'todaysChangePerc', label: 'Todays\u00a0Change\u00a0%', alignRight: false},
@@ -231,7 +231,9 @@ export default function DashboardApp() {
     };
 
     const handleFilterByName = (event) => {
+
         setFilterName(event.target.value);
+
     };
 
     const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - stocks.length) : 0;
@@ -255,10 +257,26 @@ export default function DashboardApp() {
                         type="line"
                         width="500"
                     />*/}
+
+                    <Grid item xs={12} sm={6} md={3}>
+                        <AppWidgetSummary title="Your watchlist" total={0} icon={'ant-design:eye-fill'} />
+                    </Grid>
+
+                   <Grid item xs={12} sm={6} md={3}>
+                        <AppWidgetSummary title="New Users" total={1352831} color="info" icon={'ant-design:apple-filled'} />
+                    </Grid>
+                    {/*
+                    <Grid item xs={12} sm={6} md={3}>
+                        <AppWidgetSummary title="Item Orders" total={1723315} color="warning" icon={'ant-design:windows-filled'} />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={3}>
+                        <AppWidgetSummary title="Bug Reports" total={234} color="error" icon={'ant-design:bug-filled'} />
+                    </Grid>*/}
                 </Grid>
 
 
-                <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+                <Stack direction="row" alignItems="center" justifyContent="space-between" my={5}>
                     <Typography variant="h4" gutterBottom>
                         Stocks
                     </Typography>
@@ -282,7 +300,7 @@ export default function DashboardApp() {
                                     onSelectAllClick={handleSelectAllClick}
                                 />
                                 <TableBody>
-                                    {stocks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                                    {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
 
 
                                         const {
