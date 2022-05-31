@@ -41,6 +41,7 @@ export default function LoginForm() {
           lastName: result.data().lastName,
           phone: result.data().phone,
           photoURL: result.data().photoURL,
+          country: result.data().country,
           uid: r.user.uid
         }
 
