@@ -11,7 +11,7 @@ import {
     TableContainer,
     Table,
     TableBody,
-    TableRow, TableCell, Checkbox, Link, TablePagination
+    TableRow, TableCell, Checkbox, Link, TablePagination, CircularProgress
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -314,7 +314,8 @@ export default function DashboardApp() {
                                             lastTrade,
                                         } = row
 
-
+                                        const date = new Date(updated*1000);
+                                       // console.log(date.toLocaleDateString("en-US"));
                                         const isItemSelected = selected.indexOf(ticker) !== -1;
 
                                         return (
@@ -334,7 +335,8 @@ export default function DashboardApp() {
                                                     <Stack direction="row" alignItems="center" spacing={2}>
 
                                                         <Typography variant="caption" noWrap>
-                                                            {dayjs(updated).format('YYYY-DD-MM, H:M:s')}
+                                                            {date.toLocaleDateString("en-US")}
+
                                                         </Typography>
                                                     </Stack>
                                                 </TableCell>
@@ -375,6 +377,16 @@ export default function DashboardApp() {
                                     )}
                                 </TableBody>
 
+                                {
+                                    isUserNotFound && loading &&
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell align="center" colSpan={6} sx={{py: 3}}>
+                                    <CircularProgress color="secondary" />
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                }
                                 {isUserNotFound && (
                                     <TableBody>
                                         <TableRow>
