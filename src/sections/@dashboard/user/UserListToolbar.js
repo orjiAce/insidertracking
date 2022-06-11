@@ -63,7 +63,7 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
+        <Tooltip title="Add watchlist">
           <IconButton>
             <Iconify icon="eva:plus-square-fill" />
           </IconButton>

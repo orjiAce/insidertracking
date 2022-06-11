@@ -98,7 +98,7 @@ const dispatch = useDispatch()
     // console.log(user)
     if (responseState || responseMessage) {
 
-console.log(isAuthenticated)
+
       const time = setTimeout(() => {
         dispatch(unSetResponse({
           responseState:false,
