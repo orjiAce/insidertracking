@@ -91,49 +91,7 @@ export default function DashboardApp() {
     const [stocks, setStocks] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const [chartData, setChartData] = useState({
-        options: {
-            theme: {
-                mode: 'light',
-                palette: 'palette1',
-                monochrome: {
-                    enabled: false,
-                    color: '#255aee',
-                    shadeTo: 'light',
-                    shadeIntensity: 0.65
-                },
-            },
 
-            stroke: {
-                show: true,
-                curve: ['smooth', 'straight', 'stepline'],
-                lineCap: 'butt',
-                colors: undefined,
-                width: 2,
-                dashArray: 0,
-            },
-            chart: {
-                type: "line",
-                id: "basic-bar"
-            },
-            xaxis: {
-                categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
-            }
-        },
-
-        stroke: {
-            curve: 'stepline',
-        },
-        series: [
-
-            {
-                type: 'line',
-                name: "series-1",
-                data: [30, 40, 45, 50, 49, 60, 70, 91]
-            }
-        ]
-
-    })
 
     useEffect(() => {
 
@@ -251,12 +209,6 @@ export default function DashboardApp() {
 
 
                 <Grid container spacing={3}>
-                    {/* <Chart
-                        options={chartData.options}
-                        series={chartData.series}
-                        type="line"
-                        width="500"
-                    />*/}
 
                     <Grid item xs={12} sm={6} md={3}>
                         <AppWidgetSummary title="Your watchlist" total={0} icon={'ant-design:eye-fill'} />
