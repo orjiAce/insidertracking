@@ -126,7 +126,7 @@ export default function DashboardApp() {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelecteds = stocks.map((n) => n.ticker);
+            const newSelecteds = data.tickers.map((n) => n.ticker);
             setSelected(newSelecteds);
 
             return;
@@ -147,7 +147,7 @@ export default function DashboardApp() {
             newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
         }
         setSelected(newSelected);
-        console.log(selected)
+
     };
 
     const handleChangePage = (event, newPage) => {
@@ -209,7 +209,7 @@ export default function DashboardApp() {
                 </Stack>
 
                 <Card>
-                    <UserListToolbar numSelected={selected.length} filterName={filterName}
+                    <UserListToolbar numSelected={selected.length} selected={selected} filterName={filterName}
                                      onFilterName={handleFilterByName}/>
 
                     <Scrollbar>
