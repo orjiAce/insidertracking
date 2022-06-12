@@ -18,12 +18,6 @@ import Page from '../components/Page';
 import Iconify from '../components/Iconify';
 // sections
 import {
-    AppTasks,
-    AppNewsUpdate,
-    AppOrderTimeline,
-    AppCurrentVisits,
-    AppWebsiteVisits,
-    AppTrafficBySite,
     AppWidgetSummary,
     AppCurrentSubject,
     AppConversionRates,
@@ -36,7 +30,8 @@ import Label from "../components/Label";
 import SearchNotFound from "../components/SearchNotFound";
 import {useEffect, useState} from "react";
 import {filter} from "lodash";
-import Chart from "react-apexcharts";
+import {useQuery} from "react-query";
+import {getStocks} from "../actions";
 
 // ----------------------------------------------------------------------
 
@@ -92,47 +87,23 @@ export default function DashboardApp() {
     const [loading, setLoading] = useState(false);
 
 
-
-    useEffect(() => {
-
-        const abortController = new AbortController();
-        (async ()=> {
-                setLoading(true)
-
-                const requestOptions = {
-                    method: 'GET',
-                    signal: abortController.signal,
-
-                };
-
-
-                const promise = Promise.race([
-                    fetch(`https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?apiKey=OdRN9Z80VjPRbWZE741e6ouG0uP07iUQ`, requestOptions)
-                        .then(response => response.json()),
-                    new Promise((resolve, reject) =>
-                        setTimeout(() => reject(new Error('Timeout')), 10000)
-                    )
-                ]);
-
-                promise.then(result => {
-                    if (result.status === 'DELAYED') {
-                        setStocks(result.tickers)
-
-
-                    } else {
-                        setStocks([])
-                    }
-                    setLoading(false)
-                })
-                promise.catch(error => {
-                    console.log(error)
-                });
+    const {isLoading, refetch, data } = useQuery('getStocks',()=> getStocks(),{
+        refetchInterval:2000,
+        onSuccess:(res) =>{
+         setStocks(res.tickers)
+        },
+            onError: (err) =>{
+               /* dispatch(setResponse({
+                    responseMessage:'Network, please drag to refresh 🧐',
+                    responseState: true,
+                    responseType: 'error',
+                }))*/
             }
-        )()
-        return () => {
-            abortController.abort()
-        };
-    }, []);
+
+        }
+    )
+
+
 
 
     const [page, setPage] = useState(0);
@@ -145,7 +116,7 @@ export default function DashboardApp() {
 
     const [filterName, setFilterName] = useState('');
 
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -194,10 +165,12 @@ export default function DashboardApp() {
 
     };
 
-    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - stocks.length) : 0;
-
-    const filteredUsers = applySortFilter(stocks, getComparator(order, orderBy), filterName);
-
+    let filteredUsers = [];
+    let emptyRows;
+    if(!isLoading) {
+         emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.tickers.length) : 0;
+         filteredUsers = applySortFilter(data.tickers, getComparator(order, orderBy), filterName);
+    }
     const isUserNotFound = filteredUsers.length === 0;
 
     return (
@@ -246,7 +219,7 @@ export default function DashboardApp() {
                                     order={order}
                                     orderBy={orderBy}
                                     headLabel={TABLE_HEAD}
-                                    rowCount={stocks.length}
+                                    rowCount={data?.tickers?.length}
                                     numSelected={selected.length}
                                     onRequestSort={handleRequestSort}
                                     onSelectAllClick={handleSelectAllClick}
@@ -287,7 +260,7 @@ export default function DashboardApp() {
                                                     <Stack direction="row" alignItems="center" spacing={2}>
 
                                                         <Typography variant="caption" noWrap>
-                                                            {date.toLocaleDateString("en-US")}
+                                                            {updated}
 
                                                         </Typography>
                                                     </Stack>
@@ -330,7 +303,7 @@ export default function DashboardApp() {
                                 </TableBody>
 
                                 {
-                                    isUserNotFound && loading &&
+                                    isUserNotFound && isLoading &&
                                     <TableBody>
                                         <TableRow>
                                             <TableCell align="center" colSpan={6} sx={{py: 3}}>
@@ -355,7 +328,7 @@ export default function DashboardApp() {
                     <TablePagination
                         rowsPerPageOptions={[5, 10, 25, 50, 100]}
                         component="div"
-                        count={stocks.length}
+                        count={data?.tickers?.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         onPageChange={handleChangePage}
