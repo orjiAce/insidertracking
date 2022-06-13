@@ -4,10 +4,12 @@ import {styled} from '@mui/material/styles';
 import {Toolbar, Tooltip, IconButton, Typography, OutlinedInput, InputAdornment} from '@mui/material';
 // component
 import Iconify from '../../../components/Iconify';
-import {doc, getFirestore, setDoc} from "firebase/firestore";
+
 import {useDispatch, useSelector} from "react-redux";
 import {getAuth} from "firebase/auth";
+import {doc, getDoc, getFirestore, setDoc} from "firebase/firestore";
 import {db} from "../../../firebase";
+import {useEffect} from "react";
 
 // ----------------------------------------------------------------------
 
@@ -59,10 +61,19 @@ export default function UserListToolbar({selected, numSelected, filterName, onFi
         tickers: [...selected],
         createdAt: Date.now()
     }
-    // getDoc(doc(db, 'users', r.user.uid))
+   const  tickers = getDoc(doc(db, 'watchlist',uid));
+    useEffect(() => {
+        tickers.then(res =>{
+            console.log(res.data().createdAt)
+        })
+
+    }, []);
+
+    //const washingtonRef = db.collection('cities').doc('DC');
 
     const addWatchList = () => {
         const docRef = doc(db, "watchlist", uid);
+
         setDoc(docRef, {...WatchlistData},{  merge: true}).then(() => {
             console.log("Added successfully")
         }).catch(err => {
