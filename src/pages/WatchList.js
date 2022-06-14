@@ -112,7 +112,9 @@ const WatchList = () => {
     };
 
     const useQueryMultiple = () => {
-        const watchlistQuery = useQuery('watchlist-q', () => getDoc(doc(db, 'watchlist', uid)))
+        const watchlistQuery = useQuery('watchlist-q', () => getDoc(doc(db, 'watchlist', uid)),{
+            refetchInterval:2000,
+        })
 
         return [watchlistQuery];
     }
@@ -121,13 +123,16 @@ const WatchList = () => {
     ] = useQueryMultiple()
 
     // Then get the user's projects
-    const {isIdle, data: myWatchlist, isLoading} = useQuery(
+    const {isIdle, data: myWatchlist, isLoading,isRefetching} = useQuery(
         'users-Watchlist',
+
         () => getWatchlist(watchlistData?.data()?.tickers.join(',')),
         {
+
             // The query will not execute until the userId exists
-            enabled: !!watchlistData?.data()?.tickers,
-        }
+            enabled: !!watchlistData?.data()?.tickers.length,
+        },
+
     )
 
 
@@ -218,132 +223,139 @@ const WatchList = () => {
 
             <Container maxWidth="xl">
                 <Typography variant="h4" sx={{mb: 5}}>
-                    Your watchlist
+                    Your watchlist {isRefetching && 'Updating'}
                 </Typography>
-                <Card>
-                    <WatchlistToolbar numSelected={selected.length} selected={selected} filterName={filterName}
-                                      onFilterName={handleFilterByName}/>
 
-                    <Scrollbar>
-                        <TableContainer sx={{minWidth: 800}}>
-                            <Table>
-                                <UserListHead
-                                    order={order}
-                                    orderBy={orderBy}
-                                    headLabel={WATCHLIST_TABLE_HEAD}
-                                    rowCount={myWatchlist?.tickers.length}
-                                    numSelected={selected.length}
-                                    onRequestSort={handleRequestSort}
-                                    onSelectAllClick={handleSelectAllClick}
-                                />
-                                <TableBody>
-                                    {filteredTickers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                {
+                    !watchlistData?.data()?.tickers.length
+                        ? <Typography variant="h4" sx={{mb: 5}}>
+                            You have no watchlist
+                        </Typography> :
 
+                        <Card>
+                            <WatchlistToolbar numSelected={selected.length} selected={selected} filterName={filterName}
+                                              onFilterName={handleFilterByName}/>
 
-                                        const {
-                                            ticker,
-                                            todaysChange,
-                                            todaysChangePerc,
-                                            updated,
-                                            day,
-                                            min,
-                                            prevDay,
-                                            lastTrade,
-                                        } = row
+                            <Scrollbar>
+                                <TableContainer sx={{minWidth: 800}}>
+                                    <Table>
+                                        <UserListHead
+                                            order={order}
+                                            orderBy={orderBy}
+                                            headLabel={WATCHLIST_TABLE_HEAD}
+                                            rowCount={myWatchlist?.tickers.length}
+                                            numSelected={selected.length}
+                                            onRequestSort={handleRequestSort}
+                                            onSelectAllClick={handleSelectAllClick}
+                                        />
+                                        <TableBody>
+                                            {filteredTickers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
 
 
-                                        const isItemSelected = selected.indexOf(ticker) !== -1;
-
-                                        return (
-                                            <TableRow
-                                                hover
-                                                key={ticker}
-                                                tabIndex={-1}
-                                                role="checkbox"
-                                                selected={isItemSelected}
-                                                aria-checked={isItemSelected}
-                                            >
-                                                <TableCell padding="checkbox">
-                                                    <Checkbox   sx={{
-                                                        color: red[800],
-                                                        '&.Mui-checked': {
-                                                            color: red[600],
-                                                        },
-                                                    }} checked={isItemSelected}
-                                                              onChange={(event) => handleClick(event, ticker)}/>
-                                                </TableCell>
+                                                const {
+                                                    ticker,
+                                                    todaysChange,
+                                                    todaysChangePerc,
+                                                    updated,
+                                                    day,
+                                                    min,
+                                                    prevDay,
+                                                    lastTrade,
+                                                } = row
 
 
-                                                <TableCell align="left">${
-                                                    min.o
-                                                }</TableCell>
-                                                <TableCell align="left">{min.c}</TableCell>
-                                                <TableCell align="left">
-                                                    <Label variant="ghost" color={'info'}>
-                                                        {ticker}
-                                                    </Label>
-                                                </TableCell>
-                                                <TableCell align="left">{min.av}</TableCell>
-                                                <TableCell align="left" color={"blue"}>
-                                                    ${todaysChange}
+                                                const isItemSelected = selected.indexOf(ticker) !== -1;
 
-                                                </TableCell>
+                                                return (
+                                                    <TableRow
+                                                        hover
+                                                        key={ticker}
+                                                        tabIndex={-1}
+                                                        role="checkbox"
+                                                        selected={isItemSelected}
+                                                        aria-checked={isItemSelected}
+                                                    >
+                                                        <TableCell padding="checkbox">
+                                                            <Checkbox sx={{
+                                                                color: red[800],
+                                                                '&.Mui-checked': {
+                                                                    color: red[600],
+                                                                },
+                                                            }} checked={isItemSelected}
+                                                                      onChange={(event) => handleClick(event, ticker)}/>
+                                                        </TableCell>
 
-                                                <TableCell align="left">
-                                                    <Label variant="ghost"
-                                                           color={`${todaysChangePerc > 1 ? 'success' : 'error'}`}>
-                                                        {todaysChangePerc}%
-                                                    </Label>
-                                                </TableCell>
-                                                <TableCell align="left">
 
-                                                    ${min.h}
-                                                </TableCell>
+                                                        <TableCell align="left">${
+                                                            min.o
+                                                        }</TableCell>
+                                                        <TableCell align="left">{min.c}</TableCell>
+                                                        <TableCell align="left">
+                                                            <Label variant="ghost" color={'info'}>
+                                                                {ticker}
+                                                            </Label>
+                                                        </TableCell>
+                                                        <TableCell align="left">{min.av}</TableCell>
+                                                        <TableCell align="left" color={"blue"}>
+                                                            ${todaysChange}
 
-                                            </TableRow>
-                                        );
-                                    })}
-                                    {emptyRows > 0 && (
-                                        <TableRow style={{height: 53 * emptyRows}}>
-                                            <TableCell colSpan={6}/>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
+                                                        </TableCell>
 
-                                {
-                                    isUserNotFound && isLoading || loadingWatchlist &&
-                                    <TableBody>
-                                        <TableRow>
-                                            <TableCell align="center" colSpan={6} sx={{py: 3}}>
-                                                <CircularProgress color="secondary"/>
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                }
-                                {isUserNotFound && (
-                                    <TableBody>
-                                        <TableRow>
-                                            <TableCell align="center" colSpan={6} sx={{py: 3}}>
-                                                <SearchNotFound searchQuery={filterName}/>
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                )}
-                            </Table>
-                        </TableContainer>
-                    </Scrollbar>
+                                                        <TableCell align="left">
+                                                            <Label variant="ghost"
+                                                                   color={`${todaysChangePerc > 1 ? 'success' : 'error'}`}>
+                                                                {todaysChangePerc}%
+                                                            </Label>
+                                                        </TableCell>
+                                                        <TableCell align="left">
 
-                    <TablePagination
-                        rowsPerPageOptions={[5, 10, 25, 50, 100]}
-                        component="div"
-                        count={myWatchlist?.tickers?.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                    />
-                </Card>
+                                                            ${min.h}
+                                                        </TableCell>
 
+                                                    </TableRow>
+                                                );
+                                            })}
+                                            {emptyRows > 0 && (
+                                                <TableRow style={{height: 53 * emptyRows}}>
+                                                    <TableCell colSpan={6}/>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+
+                                        {
+                                            isUserNotFound && isLoading || loadingWatchlist &&
+                                            <TableBody>
+                                                <TableRow>
+                                                    <TableCell align="center" colSpan={6} sx={{py: 3}}>
+                                                        <CircularProgress color="secondary"/>
+                                                    </TableCell>
+                                                </TableRow>
+                                            </TableBody>
+                                        }
+                                        {isUserNotFound && (
+                                            <TableBody>
+                                                <TableRow>
+                                                    <TableCell align="center" colSpan={6} sx={{py: 3}}>
+                                                        <SearchNotFound searchQuery={filterName}/>
+                                                    </TableCell>
+                                                </TableRow>
+                                            </TableBody>
+                                        )}
+                                    </Table>
+                                </TableContainer>
+                            </Scrollbar>
+
+                            <TablePagination
+                                rowsPerPageOptions={[5, 10, 25, 50, 100]}
+                                component="div"
+                                count={myWatchlist?.tickers?.length}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                            />
+                        </Card>
+                }
 
             </Container>
         </Page>
