@@ -23,6 +23,7 @@ const initialState = {
         uid: '',
         receiveNotification:false,
     },
+    tickers: []
 };
 
 export const signUpUSer = createAsyncThunk(

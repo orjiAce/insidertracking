@@ -11,7 +11,7 @@ import {
     TableContainer,
     Table,
     TableBody,
-    TableRow, TableCell, Checkbox, Link, TablePagination, CircularProgress
+    TableRow, TableCell, Checkbox, Link, TablePagination, CircularProgress, Snackbar, Slide
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -32,6 +32,9 @@ import {useEffect, useState} from "react";
 import {filter} from "lodash";
 import {useQuery} from "react-query";
 import {getStocks} from "../actions";
+import {Alert} from "@mui/lab";
+import {useDispatch, useSelector} from "react-redux";
+import {unSetResponse} from "../app/slices/userSlice";
 
 // ----------------------------------------------------------------------
 
@@ -80,12 +83,25 @@ function applySortFilter(array, comparator, query) {
 }
 
 
+
+function TransitionRight(props) {
+    return <Slide {...props} direction="left" />;
+}
+
 export default function DashboardApp() {
 
 
     const [stocks, setStocks] = useState([]);
     const [loading, setLoading] = useState(false);
-
+    const [open, setOpen] = useState(false);
+    const user = useSelector(state => state.user)
+    const dispatch = useDispatch()
+    const {
+        responseMessage,
+        responseState,
+        responseType,
+        isAuthenticated
+    } = user
 
     const {isLoading, refetch, data } = useQuery('getStocks',()=> getStocks(),{
         refetchInterval:2000,
@@ -103,7 +119,13 @@ export default function DashboardApp() {
         }
     )
 
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
 
+        setOpen(false);
+    };
 
 
     const [page, setPage] = useState(0);
@@ -173,8 +195,35 @@ export default function DashboardApp() {
     }
     const isUserNotFound = filteredUsers.length === 0;
 
+
+    useEffect(() =>{
+        // console.log(user)
+        if (responseState || responseMessage) {
+
+
+            const time = setTimeout(() => {
+                dispatch(unSetResponse({
+                    responseState:false,
+                    responseMessage:''
+                }))
+            }, 4500)
+            return () => {
+                clearTimeout(time)
+            };
+        }
+
+    },[responseState,responseMessage])
+
+
     return (
         <Page title="Dashboard">
+
+            <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
+                      autoHideDuration={3000} onClose={handleClose}>
+                <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>
+                    {responseMessage}
+                </Alert>
+            </Snackbar>
             <Container maxWidth="xl">
                 <Typography variant="h4" sx={{mb: 5}}>
                     Dashboard

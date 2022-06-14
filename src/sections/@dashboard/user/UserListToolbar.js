@@ -1,15 +1,18 @@
 import PropTypes from 'prop-types';
 // material
+import {useEffect,useState} from "react";
 import {styled} from '@mui/material/styles';
-import {Toolbar, Tooltip, IconButton, Typography, OutlinedInput, InputAdornment} from '@mui/material';
+import {Toolbar, Tooltip, IconButton, Typography, OutlinedInput, InputAdornment, CircularProgress} from '@mui/material';
 // component
 import Iconify from '../../../components/Iconify';
 
 import {useDispatch, useSelector} from "react-redux";
 import {getAuth} from "firebase/auth";
-import {doc, getDoc, getFirestore, setDoc} from "firebase/firestore";
+import {doc, arrayUnion,updateDoc, getDoc, getFirestore, setDoc} from "firebase/firestore";
 import {db} from "../../../firebase";
-import {useEffect} from "react";
+
+import {serverTimestamp} from "firebase/firestore";
+import {setResponse} from "../../../app/slices/userSlice";
 
 // ----------------------------------------------------------------------
 
@@ -45,15 +48,11 @@ UserListToolbar.propTypes = {
 export default function UserListToolbar({selected, numSelected, filterName, onFilterName}) {
 
     const user = useSelector(state => state.user)
+    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch()
     const {
-        responseMessage,
-        responseState,
-        responseType,
         userData: {
-            email,
-            uid,
-            lastName, firstName
+            uid
         }
     } = user
 
@@ -61,24 +60,34 @@ export default function UserListToolbar({selected, numSelected, filterName, onFi
         tickers: [...selected],
         createdAt: Date.now()
     }
-   const  tickers = getDoc(doc(db, 'watchlist',uid));
-    useEffect(() => {
-        tickers.then(res =>{
-            console.log(res.data().createdAt)
-        })
 
-    }, []);
+
 
     //const washingtonRef = db.collection('cities').doc('DC');
 
-    const addWatchList = () => {
+    const addWatchList = async () => {
         const docRef = doc(db, "watchlist", uid);
+        setLoading(true)
 
-        setDoc(docRef, {...WatchlistData},{  merge: true}).then(() => {
-            console.log("Added successfully")
-        }).catch(err => {
-            console.log(err)
-        })
+        await updateDoc(docRef, {
+            tickers: arrayUnion(...selected),
+             createdAt: serverTimestamp()
+        }).then(r  =>{
+            dispatch(setResponse({
+                     responseMessage:'Items added to watchlist',
+                     responseState:true,
+                     responseType:'info',
+                 }))
+
+             setLoading(false)
+             }
+
+
+         )
+             .catch(err => {
+                 setLoading(false)
+             })
+
     }
 
     return (
@@ -109,14 +118,14 @@ export default function UserListToolbar({selected, numSelected, filterName, onFi
 
             {numSelected > 0 ? (
                 <Tooltip title="Add watchlist">
-                    <IconButton onClick={addWatchList}>
-                        <Iconify icon="eva:plus-square-fill"/>
+                    <IconButton disabled={loading} onClick={addWatchList}>
+                        {loading ?  <CircularProgress color="secondary" size={30}/> :  <Iconify icon="eva:plus-square-fill"/> }
                     </IconButton>
                 </Tooltip>
             ) : (
-                <Tooltip title="Filter list">
+                <Tooltip title="Action">
                     <IconButton>
-                        <Iconify icon="ic:round-filter-list"/>
+             {/*           <Iconify icon="ic:round-filter-list"/>*/}
                     </IconButton>
                 </Tooltip>
             )}
