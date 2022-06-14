@@ -35,6 +35,8 @@ import {getStocks} from "../actions";
 import {Alert} from "@mui/lab";
 import {useDispatch, useSelector} from "react-redux";
 import {unSetResponse} from "../app/slices/userSlice";
+import {doc, getDoc} from "firebase/firestore";
+import {db} from "../firebase";
 
 // ----------------------------------------------------------------------
 
@@ -90,8 +92,6 @@ function TransitionRight(props) {
 
 export default function DashboardApp() {
 
-
-    const [stocks, setStocks] = useState([]);
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const user = useSelector(state => state.user)
@@ -100,24 +100,36 @@ export default function DashboardApp() {
         responseMessage,
         responseState,
         responseType,
-        isAuthenticated
+        isAuthenticated,
+        userData:{
+            uid
+        }
     } = user
 
-    const {isLoading, refetch, data } = useQuery('getStocks',()=> getStocks(),{
-        refetchInterval:2000,
-        onSuccess:(res) =>{
-         setStocks(res.tickers)
-        },
-            onError: (err) =>{
+    const {isLoading, refetch, data } = useQuery('get-stocks',()=> getStocks(),{
+      //  refetchInterval:2000,
+        onError: (err) =>{
                /* dispatch(setResponse({
                     responseMessage:'Network, please drag to refresh 🧐',
                     responseState: true,
                     responseType: 'error',
                 }))*/
+            console.log(err)
             }
 
         }
     )
+
+    const useQueryMultiple = () => {
+        const watchlistQuery = useQuery('watchlist-user', () => getDoc(doc(db, 'watchlist', uid)))
+        return [watchlistQuery];
+    }
+    const [
+        { loading: loadingWatchlist, data: watchlistData },
+    ] = useQueryMultiple()
+
+   //console.log(watchlistData.data().tickers)
+
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -189,7 +201,7 @@ export default function DashboardApp() {
 
     let filteredUsers = [];
     let emptyRows;
-    if(!isLoading) {
+    if(!isLoading && data) {
          emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.tickers.length) : 0;
          filteredUsers = applySortFilter(data.tickers, getComparator(order, orderBy), filterName);
     }
@@ -233,11 +245,15 @@ export default function DashboardApp() {
                 <Grid container spacing={3}>
 
                     <Grid item xs={12} sm={6} md={3}>
-                        <AppWidgetSummary title="Your watchlist" total={0} icon={'ant-design:eye-fill'} />
+                        {
+                            !loadingWatchlist &&
+
+                            <AppWidgetSummary title="Your watchlist" total={watchlistData?.data()?.tickers?.length} icon={'ant-design:eye-fill'}/>
+                        }
                     </Grid>
 
                    <Grid item xs={12} sm={6} md={3}>
-                        <AppWidgetSummary title="New Users" total={1352831} color="info" icon={'ant-design:apple-filled'} />
+                        <AppWidgetSummary title="Stock listing" total={data?.tickers?.length} color="info" icon={'ant-design:apple-filled'} />
                     </Grid>
                     {/*
                     <Grid item xs={12} sm={6} md={3}>

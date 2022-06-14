@@ -8,7 +8,7 @@ import Iconify from '../../../components/Iconify';
 
 import {useDispatch, useSelector} from "react-redux";
 import {getAuth} from "firebase/auth";
-import {doc, arrayUnion,updateDoc, getDoc, getFirestore, setDoc} from "firebase/firestore";
+import {doc, arrayUnion,updateDoc,arrayRemove, getDoc, getFirestore, setDoc} from "firebase/firestore";
 import {db} from "../../../firebase";
 
 import {serverTimestamp} from "firebase/firestore";
@@ -38,14 +38,14 @@ const SearchStyle = styled(OutlinedInput)(({theme}) => ({
 
 // ----------------------------------------------------------------------
 
-UserListToolbar.propTypes = {
+WatchlistToolbar.propTypes = {
     numSelected: PropTypes.number,
     selected: PropTypes.array,
     filterName: PropTypes.string,
     onFilterName: PropTypes.func,
 };
 
-export default function UserListToolbar({selected, numSelected, filterName, onFilterName}) {
+export default function WatchlistToolbar({selected, numSelected, filterName, onFilterName}) {
 
     const user = useSelector(state => state.user)
     const [loading, setLoading] = useState(false);
@@ -69,23 +69,23 @@ export default function UserListToolbar({selected, numSelected, filterName, onFi
         setLoading(true)
 
         await updateDoc(docRef, {
-            tickers: arrayUnion(...selected),
-             createdAt: serverTimestamp()
+            tickers: arrayRemove(...selected),
+            createdAt: serverTimestamp()
         }).then(r  =>{
-            dispatch(setResponse({
-                     responseMessage:'Items added to watchlist',
-                     responseState:true,
-                     responseType:'info',
-                 }))
+                dispatch(setResponse({
+                    responseMessage:'Items removed from watchlist',
+                    responseState:true,
+                    responseType:'success',
+                }))
 
-             setLoading(false)
-             }
+                setLoading(false)
+            }
 
 
-         )
-             .catch(err => {
-                 setLoading(false)
-             })
+        )
+            .catch(err => {
+                setLoading(false)
+            })
 
     }
 
@@ -93,8 +93,8 @@ export default function UserListToolbar({selected, numSelected, filterName, onFi
         <RootStyle
             sx={{
                 ...(numSelected > 0 && {
-                    color: 'primary.main',
-                    bgcolor: 'primary.lighter',
+                    color: 'error.main',
+                    bgcolor: 'error.lighter',
                 }),
             }}
         >
@@ -116,15 +116,15 @@ export default function UserListToolbar({selected, numSelected, filterName, onFi
             )}
 
             {numSelected > 0 ? (
-                <Tooltip title="Add watchlist">
-                    <IconButton disabled={loading} onClick={addWatchList}>
-                        {loading ?  <CircularProgress color="secondary" size={30}/> :  <Iconify icon="eva:plus-square-fill"/> }
+                <Tooltip title="Remove watchlist">
+                    <IconButton color="error" disabled={loading} onClick={addWatchList}>
+                        {loading ?  <CircularProgress color="secondary" size={30}/> :  <Iconify icon="eva:trash-fill"/> }
                     </IconButton>
                 </Tooltip>
             ) : (
                 <Tooltip title="Action">
                     <IconButton>
-             {/*           <Iconify icon="ic:round-filter-list"/>*/}
+                        {/*           <Iconify icon="ic:round-filter-list"/>*/}
                     </IconButton>
                 </Tooltip>
             )}
