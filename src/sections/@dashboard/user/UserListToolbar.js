@@ -43,9 +43,10 @@ UserListToolbar.propTypes = {
     selected: PropTypes.array,
     filterName: PropTypes.string,
     onFilterName: PropTypes.func,
+    clearSelection: PropTypes.func,
 };
 
-export default function UserListToolbar({selected, numSelected, filterName, onFilterName}) {
+export default function UserListToolbar({clearSelection,selected, numSelected, filterName, onFilterName}) {
 
     const user = useSelector(state => state.user)
     const [loading, setLoading] = useState(false);
@@ -55,11 +56,6 @@ export default function UserListToolbar({selected, numSelected, filterName, onFi
             uid
         }
     } = user
-
-    const WatchlistData = {
-        tickers: [...selected],
-        createdAt: Date.now()
-    }
 
 
     //const washingtonRef = db.collection('cities').doc('DC');
@@ -77,13 +73,14 @@ export default function UserListToolbar({selected, numSelected, filterName, onFi
                      responseState:true,
                      responseType:'info',
                  }))
-
+            clearSelection()
              setLoading(false)
              }
 
 
          )
              .catch(err => {
+                 clearSelection()
                  setLoading(false)
              })
 

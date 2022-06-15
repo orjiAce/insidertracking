@@ -27,6 +27,9 @@ import {unSetResponse} from "../app/slices/userSlice";
 import WatchlistToolbar from "../sections/@dashboard/user/WatchlistToolbar";
 import { pink, red } from '@mui/material/colors';
 
+
+
+
 const WATCHLIST_TABLE_HEAD = [
 
     {id: 'OpenPrice', label: 'Open\u00a0Price', alignRight: false},
@@ -72,6 +75,8 @@ function applySortFilter(array, comparator, query) {
 function TransitionRight(props) {
     return <Slide {...props} direction="left"/>;
 }
+
+
 
 const WatchList = () => {
 
@@ -223,7 +228,7 @@ const WatchList = () => {
 
             <Container maxWidth="xl">
                 <Typography variant="h4" sx={{mb: 5}}>
-                    Your watchlist {isRefetching && 'Updating'}
+                    Your watchlist
                 </Typography>
 
                 {
@@ -356,6 +361,8 @@ const WatchList = () => {
                             />
                         </Card>
                 }
+
+
 
             </Container>
         </Page>

@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 // @mui
-import {useTheme} from '@mui/material/styles';
+
 import {
     Grid,
     Container,
@@ -19,10 +19,7 @@ import Iconify from '../components/Iconify';
 // sections
 import {
     AppWidgetSummary,
-    AppCurrentSubject,
-    AppConversionRates,
 } from '../sections/@dashboard/app';
-import ClusterBuy from "../components/ClusterBuy";
 import {UserListHead, UserListToolbar} from "../sections/@dashboard/user";
 import Scrollbar from "../components/Scrollbar";
 import dayjs from "dayjs";
@@ -37,7 +34,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {unSetResponse} from "../app/slices/userSlice";
 import {doc, getDoc} from "firebase/firestore";
 import {db} from "../firebase";
-
+import { Steps } from 'intro.js-react';
 // ----------------------------------------------------------------------
 
 
@@ -52,6 +49,7 @@ const TABLE_HEAD = [
     {id: 'price', label: 'Price', alignRight: false},
     {id: ''},
 ];
+
 
 // ----------------------------------------------------------------------
 
@@ -92,8 +90,44 @@ function TransitionRight(props) {
 
 export default function DashboardApp() {
 
-    const [loading, setLoading] = useState(false);
+
+    const [enabled,setEnabled] = useState(true);
+    const [initialStep,setInitialStep] = useState(0);
+
+    const onExit = () => {
+        setEnabled(false)
+    }
+    const steps = [
+        {
+            element: '#title',
+            intro: 'You can use this button for help',
+            position: 'right',
+        },
+        {
+            element: '#about',
+            intro: 'You can use this button to get more information',
+        },
+        {
+            element: '#contact',
+            intro: 'You can use this button to contact us',
+        },
+    ];
+
+
     const [open, setOpen] = useState(false);
+
+    const [page, setPage] = useState(0);
+
+    const [order, setOrder] = useState('asc');
+
+    const [selected, setSelected] = useState([]);
+
+    const [orderBy, setOrderBy] = useState('ticker');
+
+    const [filterName, setFilterName] = useState('');
+
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+
     const user = useSelector(state => state.user)
     const dispatch = useDispatch()
     const {
@@ -121,11 +155,13 @@ export default function DashboardApp() {
     )
 
     const useQueryMultiple = () => {
-        const watchlistQuery = useQuery('watchlist-user', () => getDoc(doc(db, 'watchlist', uid)))
+        const watchlistQuery = useQuery('watchlist-user', () => getDoc(doc(db, 'watchlist', uid)),
+
+            )
         return [watchlistQuery];
     }
     const [
-        { loading: loadingWatchlist, data: watchlistData },
+        { loading: loadingWatchlist, isRefetching, data: watchlistData },
     ] = useQueryMultiple()
 
    //console.log(watchlistData.data().tickers)
@@ -140,17 +176,7 @@ export default function DashboardApp() {
     };
 
 
-    const [page, setPage] = useState(0);
 
-    const [order, setOrder] = useState('asc');
-
-    const [selected, setSelected] = useState([]);
-
-    const [orderBy, setOrderBy] = useState('ticker');
-
-    const [filterName, setFilterName] = useState('');
-
-    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -167,6 +193,10 @@ export default function DashboardApp() {
         }
         setSelected([]);
     };
+
+    const clearSelection = () => {
+        setSelected([]);
+    }
 
     const handleClick = (event, name) => {
         const selectedIndex = selected.indexOf(name);
@@ -229,7 +259,12 @@ export default function DashboardApp() {
 
     return (
         <Page title="Dashboard">
-
+         {/*   <Steps
+                enabled={enabled}
+                steps={steps}
+                initialStep={initialStep}
+                onExit={onExit}
+            />*/}
             <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
                       autoHideDuration={3000} onClose={handleClose}>
                 <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>
@@ -237,7 +272,7 @@ export default function DashboardApp() {
                 </Alert>
             </Snackbar>
             <Container maxWidth="xl">
-                <Typography variant="h4" sx={{mb: 5}}>
+                <Typography variant="h4" id="title" sx={{mb: 5}}>
                     Dashboard
                 </Typography>
 
@@ -245,6 +280,7 @@ export default function DashboardApp() {
                 <Grid container spacing={3}>
 
                     <Grid item xs={12} sm={6} md={3}>
+
                         {
                             !loadingWatchlist &&
 
@@ -274,7 +310,7 @@ export default function DashboardApp() {
                 </Stack>
 
                 <Card>
-                    <UserListToolbar numSelected={selected.length} selected={selected} filterName={filterName}
+                    <UserListToolbar clearSelection={clearSelection} numSelected={selected.length} selected={selected} filterName={filterName}
                                      onFilterName={handleFilterByName}/>
 
                     <Scrollbar>
