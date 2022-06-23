@@ -35,6 +35,7 @@ import {unSetResponse} from "../app/slices/userSlice";
 import {doc, getDoc} from "firebase/firestore";
 import {db} from "../firebase";
 import { Steps } from 'intro.js-react';
+import {NavLink as RouterLink} from "react-router-dom";
 // ----------------------------------------------------------------------
 
 
@@ -343,7 +344,14 @@ export default function DashboardApp() {
                                         const date = new Date(updated*1000);
                                        // console.log(date.toLocaleDateString("en-US"));
                                         const isItemSelected = selected.indexOf(ticker) !== -1;
+                                        const unixTimestamp = 1575909015
 
+                                        const milliseconds = 1575909015 * 1000 // 1575909015000
+
+                                        const dateObject = new Date(milliseconds)
+
+                                        const humanDateFormat = dateObject.toLocaleString()
+                                        console.log(humanDateFormat)
                                         return (
                                             <TableRow
                                                 hover
@@ -361,7 +369,8 @@ export default function DashboardApp() {
                                                     <Stack direction="row" alignItems="center" spacing={2}>
 
                                                         <Typography variant="caption" noWrap>
-                                                            {updated}
+                                                            { dayjs(1655981100000).format("YYYY / DD / M")}
+                                                   {/*         {dayjs().utc(updated).format()}*/}
 
                                                         </Typography>
                                                     </Stack>
@@ -371,8 +380,13 @@ export default function DashboardApp() {
                                                     min.o
                                                 }</TableCell>
                                                 <TableCell align="left">{min.c}</TableCell>
-                                                <TableCell align="left">
-                                                    <Label variant="ghost" color={'info'}>
+                                                <TableCell title={"see chart"} style={{
+                                                    textDecoration:'none',
+                                                    cursor:'pointer'
+                                                }} component={RouterLink} to={"/dashboard/chart"} align="left">
+
+                                                    <Label
+                                                               variant="ghost" color={'info'}>
                                                         {ticker}
                                                     </Label>
                                                 </TableCell>

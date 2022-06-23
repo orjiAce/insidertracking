@@ -7,7 +7,7 @@ import { alpha, styled } from '@mui/material/styles';
 import { Box, Tab, Card, Grid, Divider, Container, Typography } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 // redux
-
+import {useQuery} from "react-query";
 
 
 // components
@@ -28,6 +28,7 @@ import merge from "lodash/merge";
 
 // @mui
 import { useTheme } from '@mui/material/styles';
+import {getTickerChartData} from "../actions";
 
 // ----------------------------------------------------------------------
 
@@ -277,6 +278,9 @@ const product = {}
     },*/
   });
 
+const {data, isLoading} = useQuery('get-chart-data', () =>getTickerChartData('AAPL'))
+
+  console.log(data)
   return (
     <Page title="Ecommerce: Product Details">
       <Container maxWidth="xl">
