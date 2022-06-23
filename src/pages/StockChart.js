@@ -1,4 +1,5 @@
 import { sentenceCase } from 'change-case';
+import ReactApexChart from 'react-apexcharts';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 // @mui
@@ -9,23 +10,225 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 
 
 
-
 // components
 import Page from "../components/Page";
 import Iconify from '../components/Iconify';
 import Markdown from '../components/Markdown';
-import { SkeletonProduct } from '../components/skeleton';
+import  SkeletonProduct  from '../components/SkeletonProduct';
 
 // sections
-import {
-  ProductDetailsSummary,
-  ProductDetailsReview,
-  ProductDetailsCarousel,
-} from '../sections/@dashboard/e-commerce/product-details';
+
 
 import {useDispatch, useSelector} from "react-redux";
+import merge from "lodash/merge";
+
+
+
+
+
+// @mui
+import { useTheme } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
+
+const BaseOptionChart =() => {
+  const theme = useTheme();
+
+  const LABEL_TOTAL = {
+    show: false,
+    label: 'Total',
+    color: theme.palette.text.secondary,
+    fontSize: theme.typography.subtitle2.fontSize,
+    fontWeight: theme.typography.subtitle2.fontWeight,
+    lineHeight: theme.typography.subtitle2.lineHeight,
+  };
+
+  const LABEL_VALUE = {
+    offsetY: 8,
+    color: theme.palette.text.primary,
+    fontSize: theme.typography.h3.fontSize,
+    fontWeight: theme.typography.h3.fontWeight,
+    lineHeight: theme.typography.h3.lineHeight,
+  };
+
+  return {
+    // Colors
+    colors: [
+      theme.palette.primary.main,
+      theme.palette.chart.yellow[0],
+      theme.palette.chart.blue[0],
+      theme.palette.chart.violet[0],
+      theme.palette.chart.green[0],
+      theme.palette.chart.red[0],
+    ],
+
+    // Chart
+    chart: {
+      toolbar: { show: false },
+      zoom: { enabled: false },
+      // animations: { enabled: false },
+      foreColor: theme.palette.text.disabled,
+      fontFamily: theme.typography.fontFamily,
+    },
+
+    // States
+    states: {
+      hover: {
+        filter: {
+          type: 'lighten',
+          value: 0.04,
+        },
+      },
+      active: {
+        filter: {
+          type: 'darken',
+          value: 0.88,
+        },
+      },
+    },
+
+    // Fill
+    fill: {
+      opacity: 1,
+      gradient: {
+        type: 'vertical',
+
+        shadeIntensity: 1,
+        opacityFrom: 0.7,
+        opacityTo: 0.9,
+        stops: [0, 100]
+      },
+    },
+
+    // Datalabels
+    dataLabels: { enabled: false },
+
+    // Stroke
+    stroke: {
+      width: 3,
+      curve: 'smooth',
+      lineCap: 'round',
+    },
+
+    // Grid
+    grid: {
+      strokeDashArray: 3,
+      borderColor: theme.palette.divider,
+    },
+
+    // Xaxis
+    xaxis: {
+
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    },
+
+    // Markers
+    markers: {
+      size: 0,
+      strokeColors: theme.palette.background.paper,
+    },
+
+    // Tooltip
+    tooltip: {
+      x: {
+        show: true,
+      },
+    },
+
+    // Legend
+    legend: {
+      show: false,
+      fontSize: String(13),
+      position: 'top',
+      horizontalAlign: 'right',
+      markers: {
+        radius: 12,
+      },
+      fontWeight: 500,
+      itemMargin: { horizontal: 12 },
+      labels: {
+        colors: theme.palette.text.primary,
+      },
+    },
+
+    // plotOptions
+    plotOptions: {
+      // Bar
+      bar: {
+        columnWidth: '28%',
+        borderRadius: 4,
+      },
+      // Pie + Donut
+      pie: {
+        donut: {
+          labels: {
+            show: true,
+            value: LABEL_VALUE,
+            total: LABEL_TOTAL,
+          },
+        },
+      },
+      // Radialbar
+      radialBar: {
+        track: {
+          strokeWidth: '100%',
+          background: theme.palette.grey[500_16],
+        },
+        dataLabels: {
+          value: LABEL_VALUE,
+          total: LABEL_TOTAL,
+        },
+      },
+      // Radar
+      radar: {
+        polygons: {
+          fill: { colors: ['transparent'] },
+          strokeColors: theme.palette.divider,
+          connectorColors: theme.palette.divider,
+        },
+      },
+      // polarArea
+      polarArea: {
+        rings: {
+          strokeColor: theme.palette.divider,
+        },
+        spokes: {
+          connectorColors: theme.palette.divider,
+        },
+      },
+    },
+
+    // Responsive
+    responsive: [
+      {
+        // sm
+        breakpoint: theme.breakpoints.values.sm,
+        options: {
+          plotOptions: { bar: { columnWidth: '40%' } },
+        },
+      },
+      {
+        // md
+        breakpoint: theme.breakpoints.values.md,
+        options: {
+          plotOptions: { bar: { columnWidth: '32%' } },
+        },
+      },
+    ],
+  };
+}
+
+
+
+
+// ----------------------------------------------------------------------
+
+
+const data= [
+    { name: 'Total Income', data: [10, 41, 35, 151, 49, 62, 69, 91, 48,60,151, 49, 62, 69] },
+
+]
 
 const PRODUCT_DESCRIPTION = [
   {
@@ -60,14 +263,19 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function EcommerceProductDetails() {
+export default function StockChart() {
 
   const dispatch = useDispatch();
   const [value, setValue] = useState('1');
   const { name = '' } = useParams();
-  const { product, error, checkout } = useSelector((state) => state.product);
+const product = {}
 
-
+  const chartOptions = merge(BaseOptionChart(), {
+    legend: { position: 'top', horizontalAlign: 'right' },
+  /*  xaxis: {
+      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', ],
+    },*/
+  });
 
   return (
     <Page title="Ecommerce: Product Details">
@@ -76,19 +284,18 @@ export default function EcommerceProductDetails() {
 
 
 
-        {product && (
+
+
           <>
-            <Card>
+
               <Grid container>
-                <Grid item xs={12} md={6} lg={7}>
-       <Typography> CHART AND THINGS</Typography>
+                <Grid item xs={12} md={6} lg={12}>
+                    <ReactApexChart type="area" series={data} options={chartOptions} height={364} />
 
                 </Grid>
-                <Grid item xs={12} md={6} lg={5}>
-                  <Typography> FOOTER CHART AND THINGS FOOTER </Typography>
-                </Grid>
+
               </Grid>
-            </Card>
+
 
             <Grid container sx={{ my: 8 }}>
               {PRODUCT_DESCRIPTION.map((item) => (
@@ -114,7 +321,7 @@ export default function EcommerceProductDetails() {
                     <Tab
                       disableRipple
                       value="2"
-                      label={`Review (${product.reviews.length})`}
+                      label={`Review (${7})`}
                       sx={{ '& .MuiTab-wrapper': { whiteSpace: 'nowrap' } }}
                     />
                   </TabList>
@@ -127,17 +334,17 @@ export default function EcommerceProductDetails() {
                     <Markdown children={product.description} />
                   </Box>
                 </TabPanel>
-                <TabPanel value="2">
+          {/*      <TabPanel value="2">
                   <ProductDetailsReview product={product} />
-                </TabPanel>
+                </TabPanel>*/}
               </TabContext>
             </Card>
           </>
-        )}
+
 
         {!product && <SkeletonProduct />}
 
-        {error && <Typography variant="h6">404 Product not found</Typography>}
+{/*        {error && <Typography variant="h6">404 Product not found</Typography>}*/}
       </Container>
     </Page>
   );

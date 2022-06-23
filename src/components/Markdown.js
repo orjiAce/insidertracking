@@ -5,7 +5,7 @@ import rehypeRaw from 'rehype-raw';
 import { styled } from '@mui/material/styles';
 import { Link, Typography, Divider } from '@mui/material';
 //
-import Image from './Image';
+/*import Image from './Image';*/
 
 // ----------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ const components = {
   h5: ({ ...props }) => <Typography variant="h5" {...props} />,
   h6: ({ ...props }) => <Typography variant="h6" {...props} />,
   hr: ({ ...props }) => <Divider sx={{ my: 3 }} {...props} />,
-  img: ({ ...props }) => <Image alt={props.alt} ratio="16/9" sx={{ borderRadius: 2, my: 5 }} {...props} />,
+  /*img: ({ ...props }) => <Image alt={props.alt} ratio="16/9" sx={{ borderRadius: 2, my: 5 }} {...props} />,*/
   a: ({ ...props }) =>
     props.href.includes('http') ? <Link target="_blank" rel="noopener" {...props} /> : <Link {...props} />,
 };

@@ -26,7 +26,12 @@ const Loadable = (Component) => (props) => {
   return (
       <Suspense
           fallback={
-         <div>
+         <div style={{
+           width:'100%',
+           alignItems:'center',
+           height:'100vh',
+           justifyContent:'center'
+         }}>
            <CircularProgress color="secondary" />
 
          </div>
@@ -55,6 +60,7 @@ export default function Router() {
         { path: 'user-setting', element: <UserAccount /> },
         { path: 'watchlist', element: <WatchList /> },
         { path: 'products', element: <Products /> },
+        { path: 'chart', element: <StockChart /> },
         { path: 'blog', element: <Blog /> },
       ],
     },
@@ -78,6 +84,7 @@ export default function Router() {
 const Blog = Loadable(lazy(() => import('./pages/Blog')))
 const UserAccount = Loadable(lazy(() => import('./pages/UserAccount')))
 const WatchList = Loadable(lazy(() => import('./pages/WatchList')))
+const StockChart = Loadable(lazy(() => import('./pages/StockChart')))
 const User = Loadable(lazy(() => import('./pages/User')))
 const Login = Loadable(lazy(() => import('./pages/Login')))
 const ResetPassword = Loadable(lazy(() => import('./pages/ResetPassword')))
