@@ -233,13 +233,13 @@ const data= [
 
 const PRODUCT_DESCRIPTION = [
   {
-    title: '100% Original',
-    description: 'Chocolate bar candy canes ice cream toffee cookie halvah.',
+    title: '',
+    description: '',
     icon: 'ic:round-verified',
   },
   {
     title: '10 Day Replacement',
-    description: 'Marshmallow biscuit donut dragée fruitcake wafer.',
+    description: '',
     icon: 'eva:clock-fill',
   },
   {
@@ -300,7 +300,7 @@ const {data, isLoading} = useQuery('get-chart-data', () =>getTickerChartData('AA
 
               </Grid>
 
-
+{/*
             <Grid container sx={{ my: 8 }}>
               {PRODUCT_DESCRIPTION.map((item) => (
                 <Grid item xs={12} md={4} key={item.title}>
@@ -315,7 +315,7 @@ const {data, isLoading} = useQuery('get-chart-data', () =>getTickerChartData('AA
                   </Box>
                 </Grid>
               ))}
-            </Grid>
+            </Grid>*/}
 
             <Card>
               <TabContext value={value}>
