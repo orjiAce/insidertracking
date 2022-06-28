@@ -139,7 +139,7 @@ export default function Register() {
            Get started and start creating a watchlist for your favorite stock.</Typography>
 
             <AuthSocial />
-            <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
+            <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'bottom', horizontal:'right'}}
                       autoHideDuration={3000} onClose={handleClose}>
               <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>
                 {responseMessage}

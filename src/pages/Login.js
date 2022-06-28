@@ -147,7 +147,7 @@ const dispatch = useDispatch()
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>Enter your details below.</Typography>
 
             {/* <AuthSocial /> */}
-            <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
+            <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'bottom', horizontal:'right'}}
                       autoHideDuration={3000} onClose={handleClose}>
               <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>
                 {responseMessage}
