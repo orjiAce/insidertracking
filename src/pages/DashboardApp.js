@@ -266,7 +266,7 @@ export default function DashboardApp() {
                 initialStep={initialStep}
                 onExit={onExit}
             />*/}
-            <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
+            <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'bottom', horizontal:'right'}}
                       autoHideDuration={3000} onClose={handleClose}>
                 <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>
                     {responseMessage}
