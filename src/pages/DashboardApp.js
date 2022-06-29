@@ -161,9 +161,8 @@ export default function DashboardApp() {
             )
         return [watchlistQuery];
     }
-    const [
-        { loading: loadingWatchlist, isRefetching, data: watchlistData },
-    ] = useQueryMultiple()
+
+    const [{ loading: loadingWatchlist, isRefetching, data: watchlistData },] = useQueryMultiple()
 
    //console.log(watchlistData.data().tickers)
 
@@ -351,7 +350,7 @@ export default function DashboardApp() {
                                         const dateObject = new Date(milliseconds)
 
                                         const humanDateFormat = dateObject.toLocaleString()
-                                        console.log(humanDateFormat)
+
                                         return (
                                             <TableRow
                                                 hover

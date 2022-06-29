@@ -1,7 +1,7 @@
 import { sentenceCase } from 'change-case';
 import ReactApexChart from 'react-apexcharts';
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import {useEffect, useMemo, useState} from 'react';
 // @mui
 import { alpha, styled } from '@mui/material/styles';
 import { Box, Tab, Card, Grid, Divider, Container, Typography } from '@mui/material';
@@ -28,7 +28,11 @@ import merge from "lodash/merge";
 
 // @mui
 import { useTheme } from '@mui/material/styles';
-import {getTickerChartData} from "../actions";
+import {getChartData, getStocks, getTickerChartData} from "../actions";
+import {setResponse} from "../app/slices/userSlice";
+import dayjs from "dayjs";
+import {doc, getDoc} from "firebase/firestore";
+import {db} from "../firebase";
 
 // ----------------------------------------------------------------------
 
@@ -226,28 +230,8 @@ const BaseOptionChart =() => {
 // ----------------------------------------------------------------------
 
 
-const data= [
-    { name: 'Total Income', data: [10, 41, 35, 151, 49, 62, 69, 91, 48,60,151, 49, 62, 69] },
 
-]
 
-const PRODUCT_DESCRIPTION = [
-  {
-    title: '',
-    description: '',
-    icon: 'ic:round-verified',
-  },
-  {
-    title: '10 Day Replacement',
-    description: '',
-    icon: 'eva:clock-fill',
-  },
-  {
-    title: 'Year Warranty',
-    description: 'Cotton candy gingerbread cake I love sugar sweet.',
-    icon: 'ic:round-verified-user',
-  },
-];
 
 const IconWrapperStyle = styled('div')(({ theme }) => ({
   margin: 'auto',
@@ -264,6 +248,45 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
+
+
+const stonksUrl = 'https://yahoo-finance-api.vercel.app/GME';
+async function getStonks() {
+  const response = await fetch(stonksUrl);
+  return response.json();
+}
+
+const directionEmojis = {
+  up: '🚀',
+  down: '💩',
+  '': '',
+};
+
+const chart = {
+  options: {
+    chart: {
+      type: 'area',
+      height: 350
+    },
+    title: {
+      text: 'CandleStick Chart',
+      align: 'left'
+    },
+    xaxis: {
+      type: 'datetime'
+    },
+    yaxis: {
+      tooltip: {
+        enabled: true
+      }
+    }
+  },
+};
+
+const round = (number) => {
+  return number ? +(number.toFixed(2)) : null;
+};
+
 export default function StockChart() {
 
   const dispatch = useDispatch();
@@ -278,9 +301,50 @@ const product = {}
     },*/
   });
 
-const {data, isLoading} = useQuery('get-chart-data', () =>getTickerChartData('AAPL'))
 
-  console.log(data)
+  const [series, setSeries] = useState([{
+    data: []
+  }]);
+  const [price, setPrice] = useState(-1);
+  const [prevPrice, setPrevPrice] = useState(-1);
+  const [priceTime, setPriceTime] = useState(null);
+
+
+
+ const {isLoading, refetch, data } = useQuery('ticker-price-chart',()=> getChartData('TSLA'),{
+         //refetchInterval:10000,
+    onSuccess:(data) =>{
+      //  console.log(data);
+      const gme = data.chart.result[0];
+      setPrevPrice(price);
+      setPrice(gme.meta.regularMarketPrice.toFixed(2));
+      setPriceTime(new Date(gme.meta.regularMarketTime * 1000));
+      const quote = gme.indicators.quote[0];
+      const prices = gme.timestamp.map((timestamp, index) => ({
+        x: new Date(timestamp * 1000),
+        y: [quote.open[index], quote.high[index], quote.low[index], quote.close[index]].map(round)
+      }));
+console.log(prices)
+      setSeries([{
+        data: prices,
+      }]);
+
+    },
+        onError: (err) =>{
+          dispatch(setResponse({
+               responseMessage:'Network, please drag to refresh 🧐',
+               responseState: true,
+               responseType: 'error',
+           }))
+          console.log(err)
+        }
+
+      }
+  )
+  //Wed Jun 29 2022 16:10:00 GMT+0100 (West Africa Standard Time
+  const direction = useMemo(() => prevPrice < price ? 'up' : prevPrice > price ? 'down' : '', [prevPrice, price]);
+
+
   return (
     <Page title="Ecommerce: Product Details">
       <Container maxWidth="xl">
@@ -294,8 +358,14 @@ const {data, isLoading} = useQuery('get-chart-data', () =>getTickerChartData('AA
 
               <Grid container>
                 <Grid item xs={12} md={6} lg={12}>
-                    <ReactApexChart type="area" series={data} options={chartOptions} height={364} />
-
+                    <ReactApexChart type="area" series={series} options={chartOptions} height={364} />
+                  <div className={['price', direction].join(' ')}>
+                    ${price} {directionEmojis[direction]}
+                  </div>
+                  <div className="price-time">
+                    {priceTime && priceTime.toLocaleTimeString()}
+                  </div>
+                 {/* <Chart options={chart.options} series={series} type="candlestick" width="100%" height={320} />*/}
                 </Grid>
 
               </Grid>
@@ -322,12 +392,7 @@ const {data, isLoading} = useQuery('get-chart-data', () =>getTickerChartData('AA
                 <Box sx={{ px: 3, bgcolor: 'background.neutral' }}>
                   <TabList onChange={(e, value) => setValue(value)}>
                     <Tab disableRipple value="1" label="Description" />
-                    <Tab
-                      disableRipple
-                      value="2"
-                      label={`Review (${7})`}
-                      sx={{ '& .MuiTab-wrapper': { whiteSpace: 'nowrap' } }}
-                    />
+
                   </TabList>
                 </Box>
 

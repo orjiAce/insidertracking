@@ -82,3 +82,23 @@ export const getTickerChartData= (ticker) => {
 
 
 }
+
+
+export const getChartData = async (ticker) =>{
+    const requestOptions = {
+        method: 'GET',
+        //signal: abortController.signal,
+
+    };
+
+
+    return await Promise.race([
+        fetch(`https://yahoo-finance-api.vercel.app/${ticker}`, requestOptions)
+            .then(response => response.json()),
+        new Promise((resolve, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), 10000)
+        )
+    ]);
+
+
+}
