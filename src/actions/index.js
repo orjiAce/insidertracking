@@ -93,7 +93,7 @@ export const getChartData = async (ticker) =>{
 
 
     return await Promise.race([
-        fetch(`https://yahoo-finance-api.vercel.app/${ticker}`, requestOptions)
+        fetch(`https://api-insidertracking.netlify.app/.netlify/functions/api/${ticker}`, requestOptions)
             .then(response => response.json()),
         new Promise((resolve, reject) =>
             setTimeout(() => reject(new Error('Timeout')), 10000)

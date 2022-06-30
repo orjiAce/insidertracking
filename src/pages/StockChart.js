@@ -1,7 +1,7 @@
-import { sentenceCase } from 'change-case';
+
 import ReactApexChart from 'react-apexcharts';
 import { useParams } from 'react-router-dom';
-import {useEffect, useMemo, useState} from 'react';
+import {useMemo, useState} from 'react';
 // @mui
 import { alpha, styled } from '@mui/material/styles';
 import { Box, Tab, Card, Grid, Divider, Container, Typography } from '@mui/material';
@@ -19,7 +19,7 @@ import  SkeletonProduct  from '../components/SkeletonProduct';
 // sections
 
 
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import merge from "lodash/merge";
 
 
@@ -28,11 +28,10 @@ import merge from "lodash/merge";
 
 // @mui
 import { useTheme } from '@mui/material/styles';
-import {getChartData, getStocks, getTickerChartData} from "../actions";
+import {getChartData} from "../actions";
 import {setResponse} from "../app/slices/userSlice";
 import dayjs from "dayjs";
-import {doc, getDoc} from "firebase/firestore";
-import {db} from "../firebase";
+import Label from "../components/Label";
 
 // ----------------------------------------------------------------------
 
@@ -72,7 +71,7 @@ const BaseOptionChart =() => {
     chart: {
       toolbar: { show: false },
       zoom: { enabled: false },
-      // animations: { enabled: false },
+       animations: { enabled: true },
       foreColor: theme.palette.text.disabled,
       fontFamily: theme.typography.fontFamily,
     },
@@ -251,11 +250,6 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 
 
 
-const stonksUrl = 'https://yahoo-finance-api.vercel.app/GME';
-async function getStonks() {
-  const response = await fetch(stonksUrl);
-  return response.json();
-}
 
 const directionEmojis = {
   up: '🚀',
@@ -296,6 +290,7 @@ const product = {}
     data: []
   }]);
   const [price, setPrice] = useState(-1);
+  const [tickerName, setTickerName] = useState('');
   const [prevPrice, setPrevPrice] = useState(-1);
   const [priceTime, setPriceTime] = useState(null);
 
@@ -305,7 +300,7 @@ const product = {}
          //refetchInterval:10000,
     onSuccess:(data) =>{
       //  console.log(data);
-      const gme = data.chart.result[0];
+      const gme = data[0].chart.result[0];
       setPrevPrice(price);
       setPrice(gme.meta.regularMarketPrice.toFixed(2));
       setPriceTime(new Date(gme.meta.regularMarketTime * 1000));
@@ -314,6 +309,7 @@ const product = {}
         x: new Date(timestamp * 1000),
         y: [quote.open[index], quote.high[index], quote.low[index], quote.close[index]].map(round)
       }));
+
 
       setSeries([{
         data: prices,
@@ -331,9 +327,13 @@ const product = {}
 
       }
   )
+
+
   //Wed Jun 29 2022 16:10:00 GMT+0100 (West Africa Standard Time
   const direction = useMemo(() => prevPrice < price ? 'up' : prevPrice > price ? 'down' : '', [prevPrice, price]);
-
+  function getPercentageIncrease(numA, numB) {
+    return ((numA - numB) / numB) * 100;
+  }
 
   return (
     <Page title="Ecommerce: Product Details">
@@ -347,17 +347,38 @@ const product = {}
           <>
 
               <Grid container>
-                <Typography>
+                <Grid item xs={12} md={6} lg={12}>
+
+
+                <Typography fontSize={"large"}>
                   {params.ticker}
+                  <Typography fontSize={"small"} fontWeight={"bold"}>
+                    {data && data[2]?.results?.name}
+               {/*     {data[2].results.name} */}
+
+                  </Typography>
                 </Typography>
+
+                <Typography fontSize={"large"} fontWeight={"bolder"}>
+                  <div className={['price', direction].join(' ')}>
+                  ${price} {directionEmojis[direction]}
+                </div>
+
+                  <Label
+                      variant="ghost" color={ prevPrice < price ? 'success' : 'error'}>
+                %{getPercentageIncrease(price,prevPrice).toFixed(2)}
+
+
+                  </Label>
+
+                </Typography>
+                </Grid>
+
+
                 <Grid item xs={12} md={6} lg={12}>
                     <ReactApexChart type="area" series={series} options={chartOptions} height={364} />
-                  <div className={['price', direction].join(' ')}>
-                    ${price} {directionEmojis[direction]}
-                  </div>
-                  <div className="price-time">
-                    {priceTime && priceTime.toLocaleTimeString()}
-                  </div>
+
+
 
                 </Grid>
 
