@@ -60,7 +60,7 @@ export default function Router() {
         { path: 'user-setting', element: <UserAccount /> },
         { path: 'watchlist', element: <WatchList /> },
         { path: 'products', element: <Products /> },
-        { path: 'chart', element: <StockChart /> },
+        { path: 'chart/:ticker', element: <StockChart /> },
         { path: 'blog', element: <Blog /> },
       ],
     },

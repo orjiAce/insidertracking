@@ -37,6 +37,7 @@ import {db} from "../firebase";
 // ----------------------------------------------------------------------
 
 const BaseOptionChart =() => {
+
   const theme = useTheme();
 
   const LABEL_TOTAL = {
@@ -123,7 +124,7 @@ const BaseOptionChart =() => {
 
     // Xaxis
     xaxis: {
-
+      type: 'datetime',
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
@@ -262,32 +263,14 @@ const directionEmojis = {
   '': '',
 };
 
-const chart = {
-  options: {
-    chart: {
-      type: 'area',
-      height: 350
-    },
-    title: {
-      text: 'CandleStick Chart',
-      align: 'left'
-    },
-    xaxis: {
-      type: 'datetime'
-    },
-    yaxis: {
-      tooltip: {
-        enabled: true
-      }
-    }
-  },
-};
+
 
 const round = (number) => {
   return number ? +(number.toFixed(2)) : null;
 };
 
 export default function StockChart() {
+const params = useParams()
 
   const dispatch = useDispatch();
   const [value, setValue] = useState('1');
@@ -295,6 +278,13 @@ export default function StockChart() {
 const product = {}
 
   const chartOptions = merge(BaseOptionChart(), {
+
+
+      yaxis: {
+        tooltip: {
+          enabled: true
+        }
+      },
     legend: { position: 'top', horizontalAlign: 'right' },
   /*  xaxis: {
       categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', ],
@@ -311,7 +301,7 @@ const product = {}
 
 
 
- const {isLoading, refetch, data } = useQuery('ticker-price-chart',()=> getChartData('TSLA'),{
+ const {isLoading, refetch, data } = useQuery('ticker-price-chart',()=> getChartData(params.ticker),{
          //refetchInterval:10000,
     onSuccess:(data) =>{
       //  console.log(data);
@@ -324,7 +314,7 @@ const product = {}
         x: new Date(timestamp * 1000),
         y: [quote.open[index], quote.high[index], quote.low[index], quote.close[index]].map(round)
       }));
-console.log(prices)
+
       setSeries([{
         data: prices,
       }]);
@@ -357,6 +347,9 @@ console.log(prices)
           <>
 
               <Grid container>
+                <Typography>
+                  {params.ticker}
+                </Typography>
                 <Grid item xs={12} md={6} lg={12}>
                     <ReactApexChart type="area" series={series} options={chartOptions} height={364} />
                   <div className={['price', direction].join(' ')}>
@@ -365,7 +358,7 @@ console.log(prices)
                   <div className="price-time">
                     {priceTime && priceTime.toLocaleTimeString()}
                   </div>
-                 {/* <Chart options={chart.options} series={series} type="candlestick" width="100%" height={320} />*/}
+
                 </Grid>
 
               </Grid>

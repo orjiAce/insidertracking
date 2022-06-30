@@ -382,7 +382,7 @@ export default function DashboardApp() {
                                                 <TableCell title={"see chart"} style={{
                                                     textDecoration:'none',
                                                     cursor:'pointer'
-                                                }} component={RouterLink} to={"/dashboard/chart"} align="left">
+                                                }} component={RouterLink} to={`/dashboard/chart/${ticker}`} align="left">
 
                                                     <Label
                                                                variant="ghost" color={'info'}>
