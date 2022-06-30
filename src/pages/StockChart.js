@@ -8,7 +8,7 @@ import { Box, Tab, Card, Grid, Divider, Container, Typography } from '@mui/mater
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 // redux
 import {useQuery} from "react-query";
-
+import Paper from '@mui/material/Paper';
 
 // components
 import Page from "../components/Page";
@@ -34,6 +34,19 @@ import dayjs from "dayjs";
 import Label from "../components/Label";
 
 // ----------------------------------------------------------------------
+
+
+const compactNumber = (value) => {
+  const suffixes = ["", "K", "M", "B", "T"];
+
+  const suffixNum = Math.floor(("" + value).length / 3);
+  let shortValue = parseFloat((suffixNum != 0 ? (value / Math.pow(1000, suffixNum)) : value).toPrecision(2));
+  if (shortValue % 1 != 0) {
+    //@ts-ignore
+    shortValue = shortValue.toFixed(3)
+  }
+  return shortValue + ' ' + suffixes[suffixNum]
+}
 
 const BaseOptionChart =() => {
 
@@ -246,6 +259,15 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
   backgroundColor: `${alpha(theme.palette.primary.main, 0.08)}`,
 }));
 
+
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+}));
+
 // ----------------------------------------------------------------------
 
 
@@ -353,6 +375,7 @@ const product = {}
                 <Typography fontSize={"large"}>
                   {params.ticker}
                   <Typography fontSize={"small"} fontWeight={"bold"}>
+
                     {data && data[2]?.results?.name}
                {/*     {data[2].results.name} */}
 
@@ -414,7 +437,58 @@ const product = {}
 
                 <TabPanel value="1">
                   <Box sx={{ p: 3 }}>
-                    <Markdown children={product.description} />
+
+                    <Grid container spacing={1}>
+                      <Grid container item spacing={2}>
+                         <>
+                        <Grid item xs={3}>
+                          <Item>Market cap
+                            </Item>
+                        </Grid>
+                        <Grid item xs={3}>
+                          <Item>      {data && compactNumber(data[2]?.results?.market_cap.toFixed(0))}</Item>
+                        </Grid>
+
+                        <Grid item xs={3}>
+                          <Item>Item</Item>
+                        </Grid>  <Grid item xs={3}>
+                          <Item>Item</Item>
+                        </Grid>
+
+                      </>
+                      </Grid>
+
+
+                      <Grid container item spacing={2}>
+                         <>
+                        <Grid item xs={3}>
+                          <Item>Open
+                            </Item>
+                        </Grid>
+                        <Grid item xs={3}>
+                          <Item>691.50</Item>
+                        </Grid>
+
+                        <Grid item xs={3}>
+                          <Item>Item</Item>
+                        </Grid>  <Grid item xs={3}>
+                          <Item>Item</Item>
+                        </Grid>
+
+                      </>
+                      </Grid>
+
+
+
+
+                    </Grid>
+
+
+
+
+
+
+
                   </Box>
                 </TabPanel>
           {/*      <TabPanel value="2">
