@@ -1,25 +1,23 @@
 
 import ReactApexChart from 'react-apexcharts';
-import { useParams } from 'react-router-dom';
+import {Link as RouterLink, useParams} from 'react-router-dom';
 import {useMemo, useState} from 'react';
 // @mui
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Tab, Card, Grid, Divider, Container, Typography } from '@mui/material';
-import { TabContext, TabList, TabPanel } from '@mui/lab';
+import {Box, Tab, Card, Skeleton,Grid, Divider, Container, Typography, Snackbar, Slide, Stack, Link} from '@mui/material';
+import {Alert, TabContext, TabList, TabPanel} from '@mui/lab';
 // redux
 import {useQuery} from "react-query";
 import Paper from '@mui/material/Paper';
-
+import {fCurrency} from '../utils/formatNumber';
 // components
 import Page from "../components/Page";
-import Iconify from '../components/Iconify';
-import Markdown from '../components/Markdown';
-import  SkeletonProduct  from '../components/SkeletonProduct';
+
 
 // sections
 
 
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import merge from "lodash/merge";
 
 
@@ -28,12 +26,24 @@ import merge from "lodash/merge";
 
 // @mui
 import { useTheme } from '@mui/material/styles';
-import {getChartData} from "../actions";
+import {getChartData, getTickerNews} from "../actions";
 import {setResponse} from "../app/slices/userSlice";
 import dayjs from "dayjs";
 import Label from "../components/Label";
 
 // ----------------------------------------------------------------------
+
+
+
+const SkeletonLoad = (
+    <>
+      {[...Array(12)].map((_, index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <Skeleton variant="rectangular" width="100%" sx={{ paddingTop: '115%', borderRadius: 2 }} />
+          </Grid>
+      ))}
+    </>
+);
 
 
 const compactNumber = (value) => {
@@ -47,6 +57,14 @@ const compactNumber = (value) => {
   }
   return shortValue + ' ' + suffixes[suffixNum]
 }
+const ProductImgStyle = styled('img')({
+  top: 0,
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  position: 'absolute'
+});
+
 
 const BaseOptionChart =() => {
 
@@ -265,13 +283,16 @@ const Item = styled(Paper)(({ theme }) => ({
   ...theme.typography.body2,
   padding: theme.spacing(1),
   textAlign: 'center',
+  fontWeight:"bold",
   color: theme.palette.text.secondary,
 }));
 
 // ----------------------------------------------------------------------
 
 
-
+function TransitionRight(props) {
+  return <Slide {...props} direction="left" />;
+}
 
 const directionEmojis = {
   up: '🚀',
@@ -288,7 +309,17 @@ const round = (number) => {
 export default function StockChart() {
 const params = useParams()
 
+
+
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
+  const user = useSelector(state => state.user)
+  const {
+    responseMessage,
+    responseState,
+    responseType,
+  } = user
+
   const [value, setValue] = useState('1');
   const { name = '' } = useParams();
 const product = {}
@@ -316,6 +347,22 @@ const product = {}
   const [prevPrice, setPrevPrice] = useState(-1);
   const [priceTime, setPriceTime] = useState(null);
 
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+
+  const {isLoading:newsLoading, data:news } = useQuery('ticker-news',()=> getTickerNews(params.ticker),{
+    onSuccess:(data) =>{
+      console.log(data)
+    }
+  })
+
+
 
 
  const {isLoading, refetch, data } = useQuery('ticker-price-chart',()=> getChartData(params.ticker),{
@@ -340,11 +387,11 @@ const product = {}
     },
         onError: (err) =>{
           dispatch(setResponse({
-               responseMessage:'Network, please drag to refresh 🧐',
+               responseMessage:'Network, please refresh 🧐',
                responseState: true,
                responseType: 'error',
            }))
-          console.log(err)
+          //console.log(err)
         }
 
       }
@@ -359,6 +406,12 @@ const product = {}
 
   return (
     <Page title="Ecommerce: Product Details">
+      <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
+                autoHideDuration={3000} onClose={handleClose}>
+        <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>
+          {responseMessage}
+        </Alert>
+      </Snackbar>
       <Container maxWidth="xl">
 
 
@@ -446,13 +499,14 @@ const product = {}
                             </Item>
                         </Grid>
                         <Grid item xs={3}>
-                          <Item>      {data && compactNumber(data[2]?.results?.market_cap.toFixed(0))}</Item>
+                          <Item>
+                            {data && fCurrency(data[2]?.results?.market_cap)}</Item>
                         </Grid>
 
                         <Grid item xs={3}>
-                          <Item>Item</Item>
+                          <Item>High</Item>
                         </Grid>  <Grid item xs={3}>
-                          <Item>Item</Item>
+                          <Item>300</Item>
                         </Grid>
 
                       </>
@@ -470,9 +524,9 @@ const product = {}
                         </Grid>
 
                         <Grid item xs={3}>
-                          <Item>Item</Item>
+                          <Item>Low</Item>
                         </Grid>  <Grid item xs={3}>
-                          <Item>Item</Item>
+                          <Item>200</Item>
                         </Grid>
 
                       </>
@@ -497,9 +551,58 @@ const product = {}
               </TabContext>
             </Card>
           </>
+        <Grid container spacing={3} mt={10}>
 
 
-        {!product && <SkeletonProduct />}
+                { !newsLoading && news.status === 'OK' &&
+                    news.results.map((article) => (
+                        <Grid key={article.id} item xs={12} sm={6} md={3}>
+                <Card >
+                  <Box sx={{ pt: '100%', position: 'relative' }}>
+
+                        <Label
+                            variant="filled"
+                            color={'error'}
+                            sx={{
+                              top: 16,
+                              right: 16,
+                              zIndex: 9,
+                              position: 'absolute',
+                              textTransform: 'uppercase'
+                            }}
+                        >
+                          {article.author}
+                        </Label>
+                    )}
+                    <ProductImgStyle alt={'news'} src={article.image_url} />
+                  </Box>
+
+                  <Stack spacing={2} sx={{ p: 3 }}>
+                    <Link to={article.article_url} color="inherit" component={RouterLink}>
+                      <Typography variant="subtitle2" noWrap>
+                        {article.title}
+                      </Typography>
+                    </Link>
+
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+
+                      <Typography variant="subtitle5" fontSize="small">
+
+                        {article.description}
+                      </Typography>
+                    </Stack>
+                  </Stack>
+                </Card>
+                        </Grid>
+                    ))
+                }
+
+
+
+
+        </Grid>
+
+        {newsLoading && SkeletonLoad}
 
 {/*        {error && <Typography variant="h6">404 Product not found</Typography>}*/}
       </Container>

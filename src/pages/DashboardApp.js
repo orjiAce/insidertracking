@@ -385,7 +385,7 @@ export default function DashboardApp() {
                                                 }</TableCell>
                                                 <TableCell align="left">{min.c}</TableCell>
                                                 <TableCell title={"see chart"} style={{
-                                                    textDecoration:'none',
+
                                                     cursor:'pointer'
                                                 }} component={RouterLink} to={`/dashboard/chart/${ticker}`} align="left">
 

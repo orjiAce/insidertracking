@@ -102,3 +102,23 @@ export const getChartData = async (ticker) =>{
 
 
 }
+
+
+export const getTickerNews = async (ticker) =>{
+    const requestOptions = {
+        method: 'GET',
+        //signal: abortController.signal,
+
+    };
+
+
+    return await Promise.race([
+        fetch(`https://api.polygon.io/v2/reference/news?ticker=${ticker}&order=desc&limit=10&sort=published_utc&apiKey=iFeHNMrhbpkHU7jgUzHUUZWd1AJbnT5B`, requestOptions)
+            .then(response => response.json()),
+        new Promise((resolve, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), 10000)
+        )
+    ]);
+
+
+}

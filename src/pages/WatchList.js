@@ -26,6 +26,7 @@ import {filter} from "lodash";
 import {unSetResponse} from "../app/slices/userSlice";
 import WatchlistToolbar from "../sections/@dashboard/user/WatchlistToolbar";
 import { pink, red } from '@mui/material/colors';
+import {NavLink as RouterLink} from "react-router-dom";
 
 
 
@@ -234,10 +235,10 @@ refetchInterval:2000,
                     Your watchlist
                 </Typography>
 
-                {
+                { !loadingWatchlist &&
                     !watchlistData?.data()?.tickers.length
                         ? <Typography variant="h4" sx={{mb: 5}}>
-                            You have no watchlist
+You have no watchlist
                         </Typography> :
 
                         <Card>
@@ -298,7 +299,10 @@ refetchInterval:2000,
                                                             min.o
                                                         }</TableCell>
                                                         <TableCell align="left">{min.c}</TableCell>
-                                                        <TableCell align="left">
+                                                        <TableCell title={"see chart"} style={{
+
+                                                            cursor:'pointer'
+                                                        }} component={RouterLink} to={`/dashboard/chart/${ticker}`} align="left">
                                                             <Label variant="ghost" color={'info'}>
                                                                 {ticker}
                                                             </Label>
@@ -340,7 +344,7 @@ refetchInterval:2000,
                                                 </TableRow>
                                             </TableBody>
                                         }
-                                        {isUserNotFound && (
+                                        {!isLoading && isUserNotFound && (
                                             <TableBody>
                                                 <TableRow>
                                                     <TableCell align="center" colSpan={6} sx={{py: 3}}>
