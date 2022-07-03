@@ -18,7 +18,7 @@ import {useQuery} from "react-query";
 import {doc, getDoc} from "firebase/firestore";
 import {db} from "../firebase";
 import {getWatchlist} from "../actions";
-import {UserListHead, UserListToolbar} from "../sections/@dashboard/user";
+import {UserListHead} from "../sections/@dashboard/user";
 import Scrollbar from "../components/Scrollbar";
 import Label from "../components/Label";
 import SearchNotFound from "../components/SearchNotFound";
@@ -118,7 +118,7 @@ const WatchList = () => {
 
     const useQueryMultiple = () => {
         const watchlistQuery = useQuery('watchlist-q', () => getDoc(doc(db, 'watchlist', uid)),{
-            refetchInterval:2000,
+            refetchInterval:1000,
         })
 
         return [watchlistQuery];
@@ -133,7 +133,7 @@ const WatchList = () => {
 
         () => getWatchlist(watchlistData?.data()?.tickers.join(',')),
         {
-
+refetchInterval:2000,
             // The query will not execute until the userId exists
             enabled: !!watchlistData?.data()?.tickers.length,
         },
@@ -188,6 +188,9 @@ const WatchList = () => {
         setFilterName(event.target.value);
 
     };
+    const clearSelection = () => {
+        setSelected([]);
+    }
 
     let filteredTickers = [];
     let emptyRows;
@@ -238,7 +241,7 @@ const WatchList = () => {
                         </Typography> :
 
                         <Card>
-                            <WatchlistToolbar numSelected={selected.length} selected={selected} filterName={filterName}
+                            <WatchlistToolbar clearSelection={clearSelection} numSelected={selected.length} selected={selected} filterName={filterName}
                                               onFilterName={handleFilterByName}/>
 
                             <Scrollbar>

@@ -162,7 +162,7 @@ export default function DashboardApp() {
         return [watchlistQuery];
     }
 
-    const [{ loading: loadingWatchlist, isRefetching, data: watchlistData },] = useQueryMultiple()
+    const [{ loading: loadingWatchlist,refetch: refetchWatchList, isRefetching, data: watchlistData },] = useQueryMultiple()
 
    //console.log(watchlistData.data().tickers)
 
@@ -256,6 +256,11 @@ export default function DashboardApp() {
 
     },[responseState,responseMessage])
 
+    useEffect(() => {
+        if (responseState || responseMessage) {
+            refetchWatchList()
+        }
+    }, [responseState,responseMessage])
 
     return (
         <Page title="Dashboard">
@@ -265,7 +270,7 @@ export default function DashboardApp() {
                 initialStep={initialStep}
                 onExit={onExit}
             />*/}
-            <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'bottom', horizontal:'right'}}
+            <Snackbar open={responseState} TransitionComponent={TransitionRight} anchorOrigin={{vertical:'top', horizontal:'right'}}
                       autoHideDuration={3000} onClose={handleClose}>
                 <Alert onClose={handleClose} variant={"standard"} severity={responseType} sx={{ width: '100%' }}>
                     {responseMessage}
