@@ -358,7 +358,7 @@ const product = {}
 
   const {isLoading:newsLoading, data:news } = useQuery('ticker-news',()=> getTickerNews(params.ticker),{
     onSuccess:(data) =>{
-      console.log(data)
+
     }
   })
 

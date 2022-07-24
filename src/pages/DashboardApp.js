@@ -40,7 +40,7 @@ import {NavLink as RouterLink} from "react-router-dom";
 
 
 const TABLE_HEAD = [
-    {id: 'At', label: 'Updated\u00a0at', alignRight: false},
+   /* {id: 'At', label: 'Updated\u00a0at', alignRight: false},*/
     {id: 'OpenPrice', label: 'Open\u00a0Price', alignRight: false},
     {id: 'CLosePrice', label: 'Close\u00a0price', alignRight: false},
     {id: 'ticker', label: 'Symbol', alignRight: false},
@@ -91,7 +91,32 @@ function TransitionRight(props) {
 
 export default function DashboardApp() {
 
+    //give an initial state so that the data won't be undefined at start
+    const [bids, setBids] = useState([0]);
 
+    /*const ws = new WebSocket("wss://ws.bitstamp.net");
+
+    const apiCall = {
+        event: "bts:subscribe",
+        data: { channel: "order_book_btcusd" },
+    }
+
+    ws.onopen = (event) => {
+        ws.send(JSON.stringify(apiCall));
+    };
+
+    ws.onmessage = function (event) {
+        const json = JSON.parse(event.data);
+        try {
+            if ((json.event = "data")) {
+                console.log(json.data.bids.slice(0, 5))
+          alert("hello")
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+*/
     const [enabled,setEnabled] = useState(true);
     const [initialStep,setInitialStep] = useState(0);
 
@@ -369,16 +394,16 @@ export default function DashboardApp() {
                                                     <Checkbox checked={isItemSelected}
                                                               onChange={(event) => handleClick(event, ticker)}/>
                                                 </TableCell>
-                                                <TableCell component="th" scope="row" padding="none">
+                                           {/*     <TableCell component="th" scope="row" padding="none">
                                                     <Stack direction="row" alignItems="center" spacing={2}>
 
                                                         <Typography variant="caption" noWrap>
                                                             { dayjs(1655981100000).format("YYYY / DD / M")}
-                                                   {/*         {dayjs().utc(updated).format()}*/}
+                                                            {dayjs().utc(updated).format()}
 
                                                         </Typography>
                                                     </Stack>
-                                                </TableCell>
+                                                </TableCell>*/}
 
                                                 <TableCell align="left">${
                                                     min.o
