@@ -119,13 +119,13 @@ const WatchList = () => {
 
     const useQueryMultiple = () => {
         const watchlistQuery = useQuery('watchlist-q', () => getDoc(doc(db, 'watchlist', uid)),{
-            refetchInterval:1000,
+
         })
 
         return [watchlistQuery];
     }
     const [
-        {loading: loadingWatchlist, data: watchlistData},
+        {loading: loadingWatchlist, data: watchlistData, refetch},
     ] = useQueryMultiple()
 
     // Then get the user's projects
@@ -242,7 +242,7 @@ You have no watchlist
                         </Typography> :
 
                         <Card>
-                            <WatchlistToolbar clearSelection={clearSelection} numSelected={selected.length} selected={selected} filterName={filterName}
+                            <WatchlistToolbar clearSelection={clearSelection} refetch={refetch} numSelected={selected.length} selected={selected} filterName={filterName}
                                               onFilterName={handleFilterByName}/>
 
                             <Scrollbar>

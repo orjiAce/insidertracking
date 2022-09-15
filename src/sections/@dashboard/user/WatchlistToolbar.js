@@ -43,10 +43,11 @@ WatchlistToolbar.propTypes = {
     selected: PropTypes.array,
     filterName: PropTypes.string,
     onFilterName: PropTypes.func,
+    refetch: PropTypes.func,
     clearSelection: PropTypes.func,
 };
 
-export default function WatchlistToolbar({clearSelection,selected, numSelected, filterName, onFilterName}) {
+export default function WatchlistToolbar({clearSelection,selected, numSelected, filterName, onFilterName,refetch}) {
 
     const user = useSelector(state => state.user)
     const [loading, setLoading] = useState(false);
@@ -78,6 +79,7 @@ export default function WatchlistToolbar({clearSelection,selected, numSelected, 
                     responseState:true,
                     responseType:'success',
                 }))
+            refetch()
             clearSelection()
                 setLoading(false)
             }

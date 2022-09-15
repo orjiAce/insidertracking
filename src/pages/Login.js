@@ -141,7 +141,7 @@ const dispatch = useDispatch()
         <Container maxWidth="sm">
           <ContentStyle>
             <Typography variant="h4" gutterBottom>
-              Sign in to nsider tracking
+              Sign in to insider tracking
             </Typography>
 
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>Enter your details below.</Typography>
