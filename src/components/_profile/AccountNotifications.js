@@ -16,20 +16,9 @@ import {setResponse} from "../../app/slices/userSlice";
 const ACTIVITY_OPTIONS = [
   {
     value: 'receiveNotification',
-    label: 'Text me about Insider Sell'
+    label: 'Text me about Insider Buys and Sells'
   },
-  {
-    value: 'receiveBuyNotification',
-    label: 'Text me about Insider Buy'
-  },
-  {
-    value: 'receiveClusterBuyNotification',
-    label: 'Text me about Cluster Buy'
-  },
-  {
-    value: 'receiveBuyNotification',
-    label: 'Text me about Cluster Sell'
-  },
+
 
 ];
 
@@ -66,7 +55,7 @@ const dispatch = useDispatch()
      // enqueueSnackbar('Save success', { variant: 'success' });
 
       updateProfile(auth.currentUser, {
-        photoURL:'https://d33wubrfki0l68.cloudfront.net/554c3b0e09cf167f0281fda839a5433f2040b349/ecfc9/img/header_logo.svg'
+        receiveNotification:true
       }).then(() => {
         // Profile updated!
         // ...
