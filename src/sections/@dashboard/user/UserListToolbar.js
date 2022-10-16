@@ -13,6 +13,7 @@ import {db} from "../../../firebase";
 
 import {serverTimestamp} from "firebase/firestore";
 import {setResponse} from "../../../app/slices/userSlice";
+import {useQuery} from "react-query";
 
 // ----------------------------------------------------------------------
 
@@ -60,30 +61,55 @@ export default function UserListToolbar({clearSelection,selected, numSelected, f
 
     //const washingtonRef = db.collection('cities').doc('DC');
 
+
+    const {data} = useQuery('watchlist-q', () => getDoc(doc(db, 'watchlist', uid)),{
+
+    })
+
     const addWatchList = async () => {
         const docRef = doc(db, "watchlist", uid);
         setLoading(true)
-
-        await updateDoc(docRef, {
-            tickers: arrayUnion(...selected),
-             createdAt: serverTimestamp()
-        }).then(r  =>{
-            dispatch(setResponse({
-                     responseMessage:'Items added to watchlist',
-                     responseState:true,
-                     responseType:'info',
-                 }))
-            clearSelection()
-             setLoading(false)
-             }
+        if(!data?.data()) {
 
 
-         )
-             .catch(err => {
-                 clearSelection()
-                 setLoading(false)
-             })
+            await setDoc(docRef, {
+                tickers: arrayUnion(...selected),
+                createdAt: serverTimestamp(),
+                sendText: true
+            }).then(r => {
+                    dispatch(setResponse({
+                        responseMessage: 'Items added to watchlist',
+                        responseState: true,
+                        responseType: 'info',
+                    }))
+                    clearSelection()
+                    setLoading(false)
+                }
+            )
+                .catch(err => {
+                    clearSelection()
+                    setLoading(false)
+                })
+        }else{
+            await updateDoc(docRef, {
+                tickers: arrayUnion(...selected),
+                createdAt: serverTimestamp(),
 
+            }).then(r => {
+                    dispatch(setResponse({
+                        responseMessage: 'Items added to watchlist',
+                        responseState: true,
+                        responseType: 'info',
+                    }))
+                    clearSelection()
+                    setLoading(false)
+                }
+            )
+                .catch(err => {
+                    clearSelection()
+                    setLoading(false)
+                })
+        }
     }
 
     return (
