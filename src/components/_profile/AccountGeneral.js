@@ -111,7 +111,7 @@ const dispatch = useDispatch()
 
           dispatch(updateInfo({...values}))
 
-         // setSubmitting(false);
+          setSubmitting(false);
           //console.log("Document updated")
         })
             .catch((err) =>{
@@ -203,10 +203,7 @@ const dispatch = useDispatch()
               </Stack>
 
               <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                <LoadingButton onClick={() => {
-
-                  console.log(errors)
-                }} type="submit" variant="contained" loading={isSubmitting}>
+                <LoadingButton  type="submit" variant="contained" loading={isSubmitting}>
                   Save Changes
                 </LoadingButton>
               </Box>
