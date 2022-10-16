@@ -39,6 +39,8 @@ export default function LoginForm() {
           emailVerified: result.data().emailVerified,
           firstName: result.data().firstName,
           lastName: result.data().lastName,
+          city: result.data().city,
+          state: result.data().state,
           phone: result.data().phone,
           photoURL: result.data().photoURL,
           country: result.data().country,

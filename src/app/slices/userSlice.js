@@ -15,6 +15,7 @@ const initialState = {
         email: '',
         country:'',
         city:'',
+        state:'',
         emailVerified: false,
         firstName: 'string',
         lastName: '',
@@ -59,6 +60,8 @@ export const userSlice = createSlice({
             state.userData.firstName = action.payload.firstName
             state.userData.lastName = action.payload.lastName
             state.userData.country = action.payload.country
+            state.userData.city = action.payload.city
+            state.userData.state = action.payload.state
         },
         setAuthenticated: (state, action) => {
             state.isAuthenticated = action.payload

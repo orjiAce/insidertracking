@@ -17,11 +17,12 @@ import { LoadingButton } from '@mui/lab';
 // utils
 /* import { fData } from '../../../../utils/formatNumber'; */
 //
-import { doc, setDoc } from "firebase/firestore"
+import {doc, getDoc, setDoc} from "firebase/firestore"
 import {auth, db} from "../../firebase";
 import countries from '../countries';
 import {useDispatch, useSelector} from "react-redux";
-import {setResponse, updateInfo} from "../../app/slices/userSlice";
+import {loginUser, setAuthenticated, setResponse, updateInfo} from "../../app/slices/userSlice";
+import {useQuery} from "react-query";
 
 // ----------------------------------------------------------------------
 
@@ -29,18 +30,44 @@ export default function AccountGeneral() {
 
 const user = useSelector(state => state.user)
 const dispatch = useDispatch()
+
   const {
     responseMessage,
     responseState,
     responseType,
-  userData:{
-    email,
-    phone,
-    country,
-    uid,
-      state,city,
-    lastName,firstName
-  }} = user
+    userData:{
+      email,
+      phone,
+      country,
+      uid,
+      state,
+      city,
+      lastName,firstName
+    }} = user
+
+  useQuery(['user-info'], () =>getDoc(doc(db, 'users', uid)),{
+    onSuccess:(result)=>{
+      const userData = {
+        email: result.data().email,
+        emailVerified: result.data().emailVerified,
+        firstName: result.data().firstName,
+        lastName: result.data().lastName,
+        city: result.data().city,
+        state: result.data().state,
+        phone: result.data().phone,
+        photoURL: result.data().photoURL,
+        country: result.data().country,
+      }
+
+      dispatch(updateInfo(userData))
+    }
+  })
+
+
+
+
+
+
 
   const UpdateUserSchema = Yup.object().shape({
     country: Yup.string().required('Country is required'),
