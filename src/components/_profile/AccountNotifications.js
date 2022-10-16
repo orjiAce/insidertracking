@@ -6,6 +6,9 @@ import { LoadingButton } from '@mui/lab';
 import {useDispatch, useSelector} from "react-redux";
 import { getAuth, updateProfile } from "firebase/auth";
 import {setResponse} from "../../app/slices/userSlice";
+import {useQuery} from "react-query";
+import {arrayUnion, doc, getDoc, serverTimestamp, updateDoc} from "firebase/firestore";
+import {db} from "../../firebase";
 // redux
 
 // utils
@@ -33,29 +36,33 @@ export default function AccountNotifications() {
 const dispatch = useDispatch()
 
   const {userData:{
-    email,
+    uid,
     receiveNotification,
     phone,
     lastName,firstName
   }} = user
+  const {data} = useQuery('watchlist-q', () => getDoc(doc(db, 'watchlist', uid)),{
+
+  })
 
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      receiveNotification:receiveNotification,
-      receiveBuyNotification: false,
-      activityFollows: false,
+      receiveNotification:data?.data()?.sendText,
+
 
     },
     onSubmit: async (values, { setSubmitting }) => {
 
-
+      const docRef = doc(db, "watchlist", uid);
 
      // enqueueSnackbar('Save success', { variant: 'success' });
 
-      updateProfile(auth.currentUser, {
-        receiveNotification:true
+
+            updateDoc(docRef, {
+
+              sendText: values.receiveNotification,
       }).then(() => {
         // Profile updated!
         // ...

@@ -54,7 +54,8 @@ export default function UserListToolbar({clearSelection,selected, numSelected, f
     const dispatch = useDispatch()
     const {
         userData: {
-            uid
+            uid,
+            phone
         }
     } = user
 
@@ -75,7 +76,8 @@ export default function UserListToolbar({clearSelection,selected, numSelected, f
             await setDoc(docRef, {
                 tickers: arrayUnion(...selected),
                 createdAt: serverTimestamp(),
-                sendText: true
+                sendText: true,
+                phone
             }).then(r => {
                     dispatch(setResponse({
                         responseMessage: 'Items added to watchlist',
