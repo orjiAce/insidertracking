@@ -93,24 +93,32 @@ export default function UserListToolbar({clearSelection,selected, numSelected, f
                     setLoading(false)
                 })
         }else{
-            await updateDoc(docRef, {
-                tickers: arrayUnion(...selected),
-                createdAt: serverTimestamp(),
+            if(data?.data().tickers.length>99){
+                dispatch(setResponse({
+                    responseMessage: 'Maximum watchlist reached!',
+                    responseState: true,
+                    responseType: 'error',
+                }))
+            }else {
+                await updateDoc(docRef, {
+                    tickers: arrayUnion(...selected),
+                    createdAt: serverTimestamp(),
 
-            }).then(r => {
-                    dispatch(setResponse({
-                        responseMessage: 'Items added to watchlist',
-                        responseState: true,
-                        responseType: 'info',
-                    }))
-                    clearSelection()
-                    setLoading(false)
-                }
-            )
-                .catch(err => {
-                    clearSelection()
-                    setLoading(false)
-                })
+                }).then(r => {
+                        dispatch(setResponse({
+                            responseMessage: 'Items added to watchlist',
+                            responseState: true,
+                            responseType: 'info',
+                        }))
+                        clearSelection()
+                        setLoading(false)
+                    }
+                )
+                    .catch(err => {
+                        clearSelection()
+                        setLoading(false)
+                    })
+            }
         }
     }
 
